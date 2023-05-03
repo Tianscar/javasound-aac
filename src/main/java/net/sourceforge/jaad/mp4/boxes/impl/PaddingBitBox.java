@@ -1,8 +1,9 @@
 package net.sourceforge.jaad.mp4.boxes.impl;
 
-import java.io.IOException;
-import net.sourceforge.jaad.mp4.MP4InputStream;
+import net.sourceforge.jaad.mp4.MP4Input;
 import net.sourceforge.jaad.mp4.boxes.FullBox;
+
+import java.io.IOException;
 
 /**
  * In some streams the media samples do not occupy all bits of the bytes given
@@ -21,7 +22,7 @@ public class PaddingBitBox extends FullBox {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 		super.decode(in);
 
 		final int sampleCount = (int) (in.readBytes(4)+1)/2;
@@ -30,7 +31,7 @@ public class PaddingBitBox extends FullBox {
 
 		byte b;
 		for(int i = 0; i<sampleCount; i++) {
-			b = (byte) in.read();
+			b = (byte) in.readByte();
 			//1 bit reserved
 			//3 bits pad1
 			pad1[i] = (b>>4)&7;

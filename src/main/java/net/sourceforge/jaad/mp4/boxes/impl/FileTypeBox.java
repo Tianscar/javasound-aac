@@ -1,7 +1,8 @@
 package net.sourceforge.jaad.mp4.boxes.impl;
 
+import net.sourceforge.jaad.mp4.MP4Input;
 import net.sourceforge.jaad.mp4.boxes.BoxImpl;
-import net.sourceforge.jaad.mp4.MP4InputStream;
+
 import java.io.IOException;
 
 //TODO: 3gpp brands
@@ -27,7 +28,7 @@ public class FileTypeBox extends BoxImpl {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 		majorBrand = in.readString(4);
 		minorVersion = in.readString(4);
 		compatibleBrands = new String[(int) getLeft(in)/4];

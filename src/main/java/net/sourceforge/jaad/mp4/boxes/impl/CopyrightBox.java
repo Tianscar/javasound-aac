@@ -1,10 +1,11 @@
 package net.sourceforge.jaad.mp4.boxes.impl;
 
-import java.io.IOException;
-import net.sourceforge.jaad.mp4.MP4InputStream;
+import net.sourceforge.jaad.mp4.MP4Input;
 import net.sourceforge.jaad.mp4.boxes.BoxTypes;
 import net.sourceforge.jaad.mp4.boxes.FullBox;
 import net.sourceforge.jaad.mp4.boxes.Utils;
+
+import java.io.IOException;
 
 /**
  * The Copyright box contains a copyright declaration which applies to the
@@ -21,7 +22,7 @@ public class CopyrightBox extends FullBox {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 		if(parent.getType()==BoxTypes.USER_DATA_BOX) {
 			super.decode(in);
 			//1 bit padding, 5*3 bits language code (ISO-639-2/T)
@@ -29,7 +30,8 @@ public class CopyrightBox extends FullBox {
 
 			notice = in.readUTFString((int) getLeft(in));
 		}
-		else if(parent.getType()==BoxTypes.ITUNES_META_LIST_BOX) readChildren(in);
+		else if(parent.getType()==BoxTypes.ITUNES_META_LIST_BOX)
+			readChildren(in);
 	}
 
 	/**

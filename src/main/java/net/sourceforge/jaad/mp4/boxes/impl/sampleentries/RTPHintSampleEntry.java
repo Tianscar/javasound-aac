@@ -19,8 +19,9 @@
  */
 package net.sourceforge.jaad.mp4.boxes.impl.sampleentries;
 
+import net.sourceforge.jaad.mp4.MP4Input;
+
 import java.io.IOException;
-import net.sourceforge.jaad.mp4.MP4InputStream;
 
 public class RTPHintSampleEntry extends SampleEntry {
 
@@ -32,7 +33,7 @@ public class RTPHintSampleEntry extends SampleEntry {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 		super.decode(in);
 
 		hintTrackVersion = (int) in.readBytes(2);

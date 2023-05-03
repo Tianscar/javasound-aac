@@ -1,7 +1,8 @@
 package net.sourceforge.jaad.mp4.boxes.impl.sampleentries.codec;
 
+import net.sourceforge.jaad.mp4.MP4Input;
+
 import java.io.IOException;
-import net.sourceforge.jaad.mp4.MP4InputStream;
 
 /**
  * This box contains parameters for AC-3 decoders. For more information see the
@@ -21,7 +22,7 @@ public class AC3SpecificBox extends CodecSpecificBox {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 		final long l = in.readBytes(3);
 
 		//2 bits fscod

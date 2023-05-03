@@ -1,11 +1,12 @@
 package net.sourceforge.jaad.mp4.boxes.impl;
 
+import net.sourceforge.jaad.mp4.MP4Input;
+import net.sourceforge.jaad.mp4.boxes.FullBox;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import net.sourceforge.jaad.mp4.MP4InputStream;
-import net.sourceforge.jaad.mp4.boxes.FullBox;
 
 /**
  * A typical presentation stored in a file contains one alternate group per
@@ -52,7 +53,7 @@ public class TrackSelectionBox extends FullBox {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 		super.decode(in);
 
 		switchGroup = in.readBytes(4);

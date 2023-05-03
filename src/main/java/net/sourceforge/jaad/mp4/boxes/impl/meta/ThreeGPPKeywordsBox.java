@@ -1,7 +1,8 @@
 package net.sourceforge.jaad.mp4.boxes.impl.meta;
 
+import net.sourceforge.jaad.mp4.MP4Input;
+
 import java.io.IOException;
-import net.sourceforge.jaad.mp4.MP4InputStream;
 
 public class ThreeGPPKeywordsBox extends ThreeGPPMetadataBox {
 
@@ -12,15 +13,15 @@ public class ThreeGPPKeywordsBox extends ThreeGPPMetadataBox {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 		decodeCommon(in);
 
-		final int count = in.read();
+		final int count = in.readByte();
 		keywords = new String[count];
 
 		int len;
 		for(int i = 0; i<count; i++) {
-			len = in.read();
+			len = in.readByte();
 			keywords[i] = in.readUTFString(len);
 		}
 	}

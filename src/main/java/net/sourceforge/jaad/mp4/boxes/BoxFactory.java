@@ -1,37 +1,22 @@
 package net.sourceforge.jaad.mp4.boxes;
 
-import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import net.sourceforge.jaad.mp4.MP4InputStream;
+import net.sourceforge.jaad.mp4.MP4Input;
 import net.sourceforge.jaad.mp4.boxes.impl.*;
+import net.sourceforge.jaad.mp4.boxes.impl.drm.FairPlayDataBox;
 import net.sourceforge.jaad.mp4.boxes.impl.fd.*;
 import net.sourceforge.jaad.mp4.boxes.impl.meta.*;
 import net.sourceforge.jaad.mp4.boxes.impl.oma.*;
 import net.sourceforge.jaad.mp4.boxes.impl.sampleentries.*;
 import net.sourceforge.jaad.mp4.boxes.impl.sampleentries.codec.*;
-import net.sourceforge.jaad.mp4.boxes.impl.ESDBox;
-import net.sourceforge.jaad.mp4.boxes.impl.drm.FairPlayDataBox;
+
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
 
 public class BoxFactory implements BoxTypes {
 
-	private static final Logger LOGGER = Logger.getLogger("MP4 Boxes");
-
-	static {
-		for(Handler h : LOGGER.getHandlers()) {
-			LOGGER.removeHandler(h);
-		}
-		LOGGER.setLevel(Level.WARNING);
-
-		final ConsoleHandler h = new ConsoleHandler();
-		h.setLevel(Level.ALL);
-		LOGGER.addHandler(h);
-	}
 	private static final Map<Long, Class<? extends BoxImpl>> BOX_CLASSES = new HashMap<Long, Class<? extends BoxImpl>>();
 	private static final Map<Long, Class<? extends BoxImpl>[]> BOX_MULTIPLE_CLASSES = new HashMap<Long, Class<? extends BoxImpl>[]>();
 	private static final Map<Long, String[]> PARAMETER = new HashMap<Long, String[]>();
@@ -333,28 +318,39 @@ public class BoxFactory implements BoxTypes {
 		PARAMETER.put(OMA_MUTABLE_DRM_INFORMATION_BOX, new String[]{"OMA DRM Mutable DRM Information Box"});
 	}
 
-	public static Box parseBox(Box parent, MP4InputStream in) throws IOException {
-		final long offset = in.getOffset();
+	public static Box parseBox(Box parent, MP4Input in) throws IOException {
 
+		long offset = in.getOffset();
 		long size = in.readBytes(4);
 		long type = in.readBytes(4);
-		if(size==1) size = in.readBytes(8);
-		if(type==EXTENDED_TYPE) in.skipBytes(16);
+
+		return parseBox(parent, offset, size, type, in);
+	}
+
+	public static Box parseBox(Box parent, long offset, long size, long type, MP4Input in) throws IOException {
+
+		if(size==1)
+			size = in.readBytes(8);
+
+		if(type==EXTENDED_TYPE)
+			in.skipBytes(16);
 
 		//error protection
 		if(parent!=null) {
 			final long parentLeft = (parent.getOffset()+parent.getSize())-offset;
-			if(size>parentLeft) throw new IOException("error while decoding box '"+typeToString(type)+"' at offset "+offset+": box too large for parent");
+			if(size>parentLeft)
+				throw new IOException("error while decoding box '"+typeToString(type)+"' at offset "+offset+": box too large for parent");
 		}
 
-		Logger.getLogger("MP4 Boxes").finest(typeToString(type));
+		LOGGER.finest(() -> typeToString(type));
 		final BoxImpl box = forType(type, in.getOffset());
 		box.setParams(parent, size, type, offset);
 		box.decode(in);
 
 		//if box doesn't contain data it only contains children
 		final Class<?> cl = box.getClass();
-		if(cl==BoxImpl.class||cl==FullBox.class) box.readChildren(in);
+		if(cl==BoxImpl.class||cl==FullBox.class)
+			box.readChildren(in);
 
 		//check bytes left
 		final long left = (box.getOffset()+box.getSize())-in.getOffset();
@@ -362,21 +358,27 @@ public class BoxFactory implements BoxTypes {
 				&&!(box instanceof MediaDataBox)
 				&&!(box instanceof UnknownBox)
 				&&!(box instanceof FreeSpaceBox)) LOGGER.log(Level.INFO, "bytes left after reading box {0}: left: {1}, offset: {2}", new Object[]{typeToString(type), left, in.getOffset()});
-		else if(left<0) LOGGER.log(Level.SEVERE, "box {0} overread: {1} bytes, offset: {2}", new Object[]{typeToString(type), -left, in.getOffset()});
+		else if(left<0)
+			LOGGER.log(Level.SEVERE, "box {0} overread: {1} bytes, offset: {2}", new Object[]{typeToString(type), -left, in.getOffset()});
 
 		//if mdat found and no random access, don't skip
-		if(box.getType()!=MEDIA_DATA_BOX||in.hasRandomAccess()) in.skipBytes(left);
+		if(box.getType()!=MEDIA_DATA_BOX||in.hasRandomAccess())
+			in.skipBytes(left);
+
 		return box;
 	}
 
 	//TODO: remove usages
-	public static Box parseBox(MP4InputStream in, Class<? extends BoxImpl> boxClass) throws IOException {
+	public static Box parseBox(MP4Input in, Class<? extends BoxImpl> boxClass) throws IOException {
 		final long offset = in.getOffset();
 
 		long size = in.readBytes(4);
 		long type = in.readBytes(4);
-		if(size==1) size = in.readBytes(8);
-		if(type==EXTENDED_TYPE) in.skipBytes(16);
+		if(size==1)
+			size = in.readBytes(8);
+
+		if(type==EXTENDED_TYPE)
+			in.skipBytes(16);
 
 		BoxImpl box = null;
 		try {
@@ -431,11 +433,13 @@ public class BoxFactory implements BoxTypes {
 	}
 
 	public static String typeToString(long l) {
-		byte[] b = new byte[4];
-		b[0] = (byte) ((l>>24)&0xFF);
-		b[1] = (byte) ((l>>16)&0xFF);
-		b[2] = (byte) ((l>>8)&0xFF);
-		b[3] = (byte) (l&0xFF);
+	    // convert bytes to char directly
+        // first utf16 page is ISO 8859
+        byte[] b = new byte[4];
+        b[0] = (byte) ((l>>24)&0xFF);
+        b[1] = (byte) ((l>>16)&0xFF);
+        b[2] = (byte) ((l>>8)&0xFF);
+        b[3] = (byte) (l&0xFF);
 		return new String(b);
 	}
 }

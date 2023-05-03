@@ -1,7 +1,8 @@
 package net.sourceforge.jaad.mp4.boxes;
 
+import net.sourceforge.jaad.mp4.MP4Input;
+
 import java.io.IOException;
-import net.sourceforge.jaad.mp4.MP4InputStream;
 
 public class FullBox extends BoxImpl {
 
@@ -12,8 +13,8 @@ public class FullBox extends BoxImpl {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
-		version = in.read();
+	public void decode(MP4Input in) throws IOException {
+		version = in.readByte();
 		flags = (int) in.readBytes(3);
 	}
 }

@@ -1,7 +1,8 @@
 package net.sourceforge.jaad.mp4.od;
 
+import net.sourceforge.jaad.mp4.MP4Input;
+
 import java.io.IOException;
-import net.sourceforge.jaad.mp4.MP4InputStream;
 
 /**
  * The <code>DecoderConfigDescriptor</code> provides information about the
@@ -20,10 +21,10 @@ public class DecoderConfigDescriptor extends Descriptor {
 	private boolean upstream;
 	private long maxBitRate, averageBitRate;
 
-	void decode(MP4InputStream in) throws IOException {
-		objectProfile = in.read();
+	void decode(MP4Input in) throws IOException {
+		objectProfile = in.readByte();
 		//6 bits stream type, 1 bit upstream flag, 1 bit reserved
-		final int x = in.read();
+		final int x = in.readByte();
 		streamType = (x>>2)&0x3F;
 		upstream = ((x>>1)&1)==1;
 

@@ -1,8 +1,9 @@
 package net.sourceforge.jaad.mp4.boxes.impl.samplegroupentries;
 
-import net.sourceforge.jaad.mp4.MP4InputStream;
-import java.io.IOException;
+import net.sourceforge.jaad.mp4.MP4Input;
 import net.sourceforge.jaad.mp4.boxes.BoxImpl;
+
+import java.io.IOException;
 
 public abstract class SampleGroupDescriptionEntry extends BoxImpl {
 
@@ -11,5 +12,5 @@ public abstract class SampleGroupDescriptionEntry extends BoxImpl {
 	}
 
 	@Override
-	public abstract void decode(MP4InputStream in) throws IOException;
+	public abstract void decode(MP4Input in) throws IOException;
 }

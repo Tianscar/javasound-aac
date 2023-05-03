@@ -1,8 +1,9 @@
 package net.sourceforge.jaad.mp4.boxes.impl;
 
-import java.io.IOException;
-import net.sourceforge.jaad.mp4.MP4InputStream;
+import net.sourceforge.jaad.mp4.MP4Input;
 import net.sourceforge.jaad.mp4.boxes.FullBox;
+
+import java.io.IOException;
 
 /**
  * This box contains an explicit timeline map. Each entry defines part of the
@@ -34,7 +35,7 @@ public class EditListBox extends FullBox {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 		super.decode(in);
 
 		final int entryCount = (int) in.readBytes(4);

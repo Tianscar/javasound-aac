@@ -1,31 +1,18 @@
 package net.sourceforge.jaad.mp4.api;
 
+import net.sourceforge.jaad.mp4.MP4Input;
+import net.sourceforge.jaad.mp4.boxes.Box;
+import net.sourceforge.jaad.mp4.boxes.BoxTypes;
+import net.sourceforge.jaad.mp4.boxes.impl.*;
+import net.sourceforge.jaad.mp4.od.DecoderSpecificInfo;
+import net.sourceforge.jaad.mp4.od.Descriptor;
+
 import java.io.EOFException;
-import java.util.logging.Logger;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.logging.Level;
-import net.sourceforge.jaad.mp4.MP4InputStream;
-import net.sourceforge.jaad.mp4.boxes.Box;
-import net.sourceforge.jaad.mp4.boxes.BoxTypes;
-import net.sourceforge.jaad.mp4.boxes.impl.ChunkOffsetBox;
-import net.sourceforge.jaad.mp4.boxes.impl.DataEntryUrlBox;
-import net.sourceforge.jaad.mp4.boxes.impl.DataReferenceBox;
-import net.sourceforge.jaad.mp4.boxes.impl.MediaHeaderBox;
-import net.sourceforge.jaad.mp4.boxes.impl.SampleSizeBox;
-import net.sourceforge.jaad.mp4.boxes.impl.SampleToChunkBox;
-import net.sourceforge.jaad.mp4.boxes.impl.DecodingTimeToSampleBox;
-import net.sourceforge.jaad.mp4.boxes.impl.TrackHeaderBox;
-import net.sourceforge.jaad.mp4.od.DecoderSpecificInfo;
-import net.sourceforge.jaad.mp4.boxes.impl.ESDBox;
-import net.sourceforge.jaad.mp4.boxes.impl.sampleentries.SampleEntry;
-import net.sourceforge.jaad.mp4.od.Descriptor;
 
 /**
  * This class represents a track in a movie.
@@ -42,7 +29,7 @@ public abstract class Track {
 	public interface Codec {
 		//TODO: currently only marker interface
 	}
-	private final MP4InputStream in;
+	private final MP4Input in;
 	protected final TrackHeaderBox tkhd;
 	private final MediaHeaderBox mdhd;
 	private final boolean inFile;
@@ -54,7 +41,7 @@ public abstract class Track {
 	protected DecoderInfo decoderInfo;
 	protected Protection protection;
 
-	Track(Box trak, MP4InputStream in) {
+	Track(Box trak, MP4Input in) {
 		this.in = in;
 
 		tkhd = (TrackHeaderBox) trak.getChild(BoxTypes.TRACK_HEADER_BOX);
@@ -74,7 +61,7 @@ public abstract class Track {
 					location = new URL(url.getLocation());
 				}
 				catch(MalformedURLException e) {
-					Logger.getLogger("MP4 API").log(Level.WARNING, "Parsing URL-Box failed: {0}, url: {1}", new String[]{e.toString(), url.getLocation()});
+					DecoderInfo.LOGGER.log(Level.WARNING, "Parsing URL-Box failed: {0}, url: {1}", new String[]{e.toString(), url.getLocation()});
 					location = null;
 				}
 			}
@@ -95,7 +82,8 @@ public abstract class Track {
 			frames = new ArrayList<Frame>();
 			parseSampleTable(stbl);
 		}
-		else frames = Collections.emptyList();
+		else
+			frames = Collections.emptyList();
 		currentFrame = 0;
 	}
 
@@ -108,8 +96,10 @@ public abstract class Track {
 
 		//chunk offsets
 		final ChunkOffsetBox stco;
-		if(stbl.hasChild(BoxTypes.CHUNK_OFFSET_BOX)) stco = (ChunkOffsetBox) stbl.getChild(BoxTypes.CHUNK_OFFSET_BOX);
-		else stco = (ChunkOffsetBox) stbl.getChild(BoxTypes.CHUNK_LARGE_OFFSET_BOX);
+		if(stbl.hasChild(BoxTypes.CHUNK_OFFSET_BOX))
+			stco = (ChunkOffsetBox) stbl.getChild(BoxTypes.CHUNK_OFFSET_BOX);
+		else
+			stco = (ChunkOffsetBox) stbl.getChild(BoxTypes.CHUNK_LARGE_OFFSET_BOX);
 		final long[] chunkOffsets = stco.getChunks();
 
 		//samples to chunks
@@ -139,8 +129,10 @@ public abstract class Track {
 		long offset = 0;
 		//iterate over all chunk groups
 		for(int i = 0; i<firstChunks.length; i++) {
-			if(i<firstChunks.length-1) lastChunk = (int) firstChunks[i+1]-1;
-			else lastChunk = chunkOffsets.length;
+			if(i<firstChunks.length-1)
+				lastChunk = (int) firstChunks[i+1]-1;
+			else
+				lastChunk = chunkOffsets.length;
 
 			//iterate over all chunks in current group
 			for(int j = (int) firstChunks[i]-1; j<lastChunk; j++) {
@@ -280,8 +272,8 @@ public abstract class Track {
 	 * @see #getDecoderInfo() 
 	 * @return the decoder specific info
 	 */
-	public byte[] getDecoderSpecificInfo() {
-		return decoderSpecificInfo.getData();
+	public DecoderSpecificInfo getDecoderSpecificInfo() {
+		return decoderSpecificInfo;
 	}
 
 	/**
@@ -331,11 +323,13 @@ public abstract class Track {
 			frame = frames.get(currentFrame);
 
 			final long diff = frame.getOffset()-in.getOffset();
-			if(diff>0) in.skipBytes(diff);
+			if(diff>0)
+				in.skipBytes(diff);
 			else if(diff<0) {
-				if(in.hasRandomAccess()) in.seek(frame.getOffset());
+				if(in.hasRandomAccess())
+					in.seek(frame.getOffset());
 				else {
-					Logger.getLogger("MP4 API").log(Level.WARNING, "readNextFrame failed: frame {0} already skipped, offset:{1}, stream:{2}", new Object[]{currentFrame, frame.getOffset(), in.getOffset()});
+					DecoderInfo.LOGGER.log(Level.WARNING, "readNextFrame failed: frame {0} already skipped, offset:{1}, stream:{2}", new Object[]{currentFrame, frame.getOffset(), in.getOffset()});
 					throw new IOException("frame already skipped and no random access");
 				}
 			}
@@ -345,7 +339,7 @@ public abstract class Track {
 				in.readBytes(b);
 			}
 			catch(EOFException e) {
-				Logger.getLogger("MP4 API").log(Level.WARNING, "readNextFrame failed: tried to read {0} bytes at {1}", new Long[]{frame.getSize(), in.getOffset()});
+				DecoderInfo.LOGGER.log(Level.WARNING, "readNextFrame failed: tried to read {0} bytes at {1}", new Long[]{frame.getSize(), in.getOffset()});
 				throw e;
 			}
 			frame.setData(b);

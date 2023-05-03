@@ -13,7 +13,7 @@ public enum MSMask {
 	TYPE_ALL_1(2),
 	TYPE_RESERVED(3);
 
-	public static MSMask forInt(int i) throws AACException {
+	public static MSMask forInt(int i) {
 		MSMask m;
 		switch(i) {
 			case 0:

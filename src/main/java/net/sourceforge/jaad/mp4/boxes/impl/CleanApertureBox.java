@@ -1,8 +1,9 @@
 package net.sourceforge.jaad.mp4.boxes.impl;
 
-import java.io.IOException;
-import net.sourceforge.jaad.mp4.MP4InputStream;
+import net.sourceforge.jaad.mp4.MP4Input;
 import net.sourceforge.jaad.mp4.boxes.BoxImpl;
+
+import java.io.IOException;
 
 public class CleanApertureBox extends BoxImpl {
 
@@ -20,7 +21,7 @@ public class CleanApertureBox extends BoxImpl {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 		cleanApertureWidthN = in.readBytes(4);
 		cleanApertureWidthD = in.readBytes(4);
 		cleanApertureHeightN = in.readBytes(4);

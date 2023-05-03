@@ -1,8 +1,9 @@
 package net.sourceforge.jaad.mp4.boxes.impl;
 
-import java.io.IOException;
-import net.sourceforge.jaad.mp4.MP4InputStream;
+import net.sourceforge.jaad.mp4.MP4Input;
 import net.sourceforge.jaad.mp4.boxes.FullBox;
+
+import java.io.IOException;
 
 /**
  * The Sub-Sample Information box is designed to contain sub-sample information.
@@ -30,7 +31,7 @@ public class SubSampleInformationBox extends FullBox {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 		super.decode(in);
 
 		final int len = (version==1) ? 4 : 2;
@@ -40,18 +41,17 @@ public class SubSampleInformationBox extends FullBox {
 		subsamplePriority = new int[entryCount][];
 		discardable = new boolean[entryCount][];
 
-		int j, subsampleCount;
 		for(int i = 0; i<entryCount; i++) {
 			sampleDelta[i] = in.readBytes(4);
-			subsampleCount = (int) in.readBytes(2);
+			int subsampleCount = (int) in.readBytes(2);
 			subsampleSize[i] = new long[subsampleCount];
 			subsamplePriority[i] = new int[subsampleCount];
 			discardable[i] = new boolean[subsampleCount];
 
-			for(j = 0; j<subsampleCount; j++) {
+			for(int j = 0; j<subsampleCount; j++) {
 				subsampleSize[i][j] = in.readBytes(len);
-				subsamplePriority[i][j] = in.read();
-				discardable[i][j] = (in.read()&1)==1;
+				subsamplePriority[i][j] = in.readByte();
+				discardable[i][j] = (in.readByte()&1)==1;
 				in.skipBytes(4); //reserved
 			}
 		}

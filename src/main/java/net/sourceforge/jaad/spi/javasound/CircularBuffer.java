@@ -51,8 +51,10 @@ class CircularBuffer {
 
 	public int read(byte[] b, int off, int len) {
 		if(!isOpen()) {
-			if(availableRead()>0) len = Math.min(len, availableRead());
-			else return -1;
+			if(availableRead()>0)
+				len = Math.min(len, availableRead());
+			else
+				return -1;
 		}
 		synchronized(this) {
 			if(trigger!=null&&availableRead()<len) {

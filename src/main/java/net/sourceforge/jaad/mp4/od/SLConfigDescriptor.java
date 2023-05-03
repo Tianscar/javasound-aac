@@ -1,7 +1,8 @@
 package net.sourceforge.jaad.mp4.od;
 
+import net.sourceforge.jaad.mp4.MP4Input;
+
 import java.io.IOException;
-import net.sourceforge.jaad.mp4.MP4InputStream;
 
 //ISO 14496-1 - 10.2.3
 //TODO: not working: reads too much! did the specification change?
@@ -19,13 +20,13 @@ public class SLConfigDescriptor extends Descriptor {
 	private int ocrES_ID;
 
 	@Override
-	void decode(MP4InputStream in) throws IOException {
+	void decode(MP4Input in) throws IOException {
 		int tmp;
 
-		final boolean predefined = in.read()==1;
+		final boolean predefined = in.readByte()==1;
 		if(!predefined) {
 			//flags
-			tmp = in.read();
+			tmp = in.readByte();
 			useAccessUnitStart = ((tmp>>7)&1)==1;
 			useAccessUnitEnd = ((tmp>>6)&1)==1;
 			useRandomAccessPoint = ((tmp>>5)&1)==1;
@@ -37,10 +38,10 @@ public class SLConfigDescriptor extends Descriptor {
 
 			timeStampResolution = in.readBytes(4);
 			ocrResolution = in.readBytes(4);
-			timeStampLength = in.read();
-			ocrLength = in.read();
-			instantBitrateLength = in.read();
-			tmp = in.read();
+			timeStampLength = in.readByte();
+			ocrLength = in.readByte();
+			instantBitrateLength = in.readByte();
+			tmp = in.readByte();
 			degradationPriorityLength = (tmp>>4)&15;
 			seqNumberLength = tmp&15;
 
@@ -51,7 +52,8 @@ public class SLConfigDescriptor extends Descriptor {
 			}
 
 			if(!useTimeStamp) {
-				if(useWallClockTimeStamp) wallClockTimeStamp = in.readBytes(4);
+				if(useWallClockTimeStamp)
+					wallClockTimeStamp = in.readBytes(4);
 				tmp = (int) Math.ceil((double) (2*timeStampLength)/8);
 				final long tmp2 = in.readBytes(tmp);
 				final long mask = ((1<<timeStampLength)-1);
@@ -60,8 +62,9 @@ public class SLConfigDescriptor extends Descriptor {
 			}
 		}
 
-		tmp = in.read();
+		tmp = in.readByte();
 		ocrStream = ((tmp>>7)&1)==1;
-		if(ocrStream) ocrES_ID = (int) in.readBytes(2);
+		if(ocrStream)
+			ocrES_ID = (int) in.readBytes(2);
 	}
 }

@@ -1,8 +1,9 @@
 package net.sourceforge.jaad.mp4.boxes.impl;
 
-import java.io.IOException;
-import net.sourceforge.jaad.mp4.MP4InputStream;
+import net.sourceforge.jaad.mp4.MP4Input;
 import net.sourceforge.jaad.mp4.boxes.FullBox;
+
+import java.io.IOException;
 
 /**
  * Each movie fragment can add zero or more fragments to each track; and a track
@@ -26,7 +27,7 @@ public class TrackFragmentHeaderBox extends FullBox {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 		super.decode(in);
 
 		trackID = in.readBytes(4);

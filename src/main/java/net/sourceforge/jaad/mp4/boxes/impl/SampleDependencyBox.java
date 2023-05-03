@@ -1,9 +1,10 @@
 package net.sourceforge.jaad.mp4.boxes.impl;
 
-import java.io.IOException;
-import net.sourceforge.jaad.mp4.MP4InputStream;
+import net.sourceforge.jaad.mp4.MP4Input;
 import net.sourceforge.jaad.mp4.boxes.BoxTypes;
 import net.sourceforge.jaad.mp4.boxes.FullBox;
+
+import java.io.IOException;
 
 /**
  * This box contains the sample dependencies for each switching sample. The
@@ -23,15 +24,14 @@ public class SampleDependencyBox extends FullBox {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 		super.decode(in);
 
 		final int sampleCount = ((SampleSizeBox) parent.getChild(BoxTypes.SAMPLE_SIZE_BOX)).getSampleCount();
 
-		int j;
 		for(int i = 0; i<sampleCount; i++) {
 			dependencyCount[i] = (int) in.readBytes(2);
-			for(j = 0; j<dependencyCount[i]; j++) {
+			for(int j = 0; j<dependencyCount[i]; j++) {
 				relativeSampleNumber[i][j] = (int) in.readBytes(2);
 			}
 		}

@@ -1,6 +1,9 @@
 package net.sourceforge.jaad.mp4.boxes;
 
+import java.util.logging.Logger;
+
 public interface BoxTypes {
+	Logger LOGGER = Logger.getLogger("jaad.mp4.boxes.BoxTypes"); //for debugging
 
 	long EXTENDED_TYPE = 1970628964; //uuid
 	//standard boxes (ISO BMFF)

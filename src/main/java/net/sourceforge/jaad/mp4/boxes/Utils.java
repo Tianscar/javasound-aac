@@ -15,8 +15,10 @@ public final class Utils {
 
 	public static long detectUndetermined(long l) {
 		final long x;
-		if(l==UNDETERMINED) x = -1;
-		else x = l;
+		if(l==UNDETERMINED)
+			x = -1;
+		else
+			x = l;
 		return x;
 	}
 }

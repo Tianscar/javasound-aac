@@ -19,7 +19,8 @@
  */
 package net.sourceforge.jaad.mp4.boxes.impl.sampleentries;
 
-import net.sourceforge.jaad.mp4.MP4InputStream;
+import net.sourceforge.jaad.mp4.MP4Input;
+
 import java.io.IOException;
 
 abstract class MetadataSampleEntry extends SampleEntry {
@@ -31,10 +32,10 @@ abstract class MetadataSampleEntry extends SampleEntry {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 		super.decode(in);
 
-		contentEncoding = in.readUTFString((int) getLeft(in), MP4InputStream.UTF8);
+		contentEncoding = in.readUTFString((int) getLeft(in), MP4Input.UTF8);
 	}
 
 	/**

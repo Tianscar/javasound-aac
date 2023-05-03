@@ -1,7 +1,8 @@
 package net.sourceforge.jaad.mp4.od;
 
+import net.sourceforge.jaad.mp4.MP4Input;
+
 import java.io.IOException;
-import net.sourceforge.jaad.mp4.MP4InputStream;
 
 /**
  * The <code>DecoderSpecificInfo</code> constitutes an opaque container with
@@ -18,7 +19,7 @@ public class DecoderSpecificInfo extends Descriptor {
 	private byte[] data;
 
 	@Override
-	void decode(MP4InputStream in) throws IOException {
+	void decode(MP4Input in) throws IOException {
 		data = new byte[size];
 		in.readBytes(data);
 	}

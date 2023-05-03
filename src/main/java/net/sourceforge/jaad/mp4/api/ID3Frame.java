@@ -105,8 +105,10 @@ class ID3Frame {
 		size = ID3Tag.readSynch(in);
 		flags = in.readShort();
 
-		if(isInGroup()) groupID = in.read();
-		if(isEncrypted()) encryptionMethod = in.read();
+		if(isInGroup())
+			groupID = in.read();
+		if(isEncrypted())
+			encryptionMethod = in.read();
 		//TODO: data length indicator, unsync
 
 		data = new byte[(int) size];
@@ -158,7 +160,8 @@ class ID3Frame {
 		//charsets 0,3 end with '0'; 1,2 end with '00'
 		int t = -1;
 		for(int i = 1; i<data.length&&t<0; i++) {
-			if(data[i]==0&&(enc==0||enc==3||data[i+1]==0)) t = i;
+			if(data[i]==0&&(enc==0||enc==3||data[i+1]==0))
+				t = i;
 		}
 		return new String(data, 1, t-1, Charset.forName(TEXT_ENCODINGS[enc]));
 	}
@@ -172,8 +175,10 @@ class ID3Frame {
 		final String x = new String(data, Charset.forName(TEXT_ENCODINGS[0]));
 		final int i = x.indexOf('/');
 		final int[] y;
-		if(i>0) y = new int[]{Integer.parseInt(x.substring(0, i)), Integer.parseInt(x.substring(i+1))};
-		else y = new int[]{Integer.parseInt(x)};
+		if(i>0)
+			y = new int[]{Integer.parseInt(x.substring(0, i)), Integer.parseInt(x.substring(i+1))};
+		else
+			y = new int[]{Integer.parseInt(x)};
 		return y;
 	}
 
@@ -185,15 +190,18 @@ class ID3Frame {
 			final SimpleDateFormat sdf = new SimpleDateFormat(VALID_TIMESTAMPS[i]);
 			date = sdf.parse(new String(data), new ParsePosition(0));
 		}
-		else date = null;
+		else
+			date = null;
 		return date;
 	}
 
 	public Locale getLocale() {
 		final String s = new String(data).toLowerCase();
 		final Locale l;
-		if(s.equals(UNKNOWN_LANGUAGE)) l = null;
-		else l = new Locale(s);
+		if(s.equals(UNKNOWN_LANGUAGE))
+			l = null;
+		else
+			l = new Locale(s);
 		return l;
 	}
 }

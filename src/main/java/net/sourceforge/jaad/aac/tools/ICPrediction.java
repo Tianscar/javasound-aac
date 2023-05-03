@@ -1,19 +1,19 @@
 package net.sourceforge.jaad.aac.tools;
 
-import net.sourceforge.jaad.aac.AACException;
 import net.sourceforge.jaad.aac.SampleFrequency;
 import net.sourceforge.jaad.aac.syntax.BitStream;
-import net.sourceforge.jaad.aac.syntax.Constants;
 import net.sourceforge.jaad.aac.syntax.ICSInfo;
-import net.sourceforge.jaad.aac.syntax.ICStream;
+
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Intra-channel prediction used in profile Main
  * @author in-somnia
  */
 public class ICPrediction {
-
+	static final Logger LOGGER = Logger.getLogger("jaad.aac.tools.ICPrediction"); //for debugging
+	
 	private static final float SF_SCALE = 1.0f/-1024.0f;
 	private static final float INV_SF_SCALE = 1.0f/SF_SCALE;
 	private static final int MAX_PREDICTORS = 672;
@@ -39,10 +39,11 @@ public class ICPrediction {
 		resetAllPredictors();
 	}
 
-	public void decode(BitStream in, int maxSFB, SampleFrequency sf) throws AACException {
+	public void decode(BitStream in, int maxSFB, SampleFrequency sf) {
 		final int predictorCount = sf.getPredictorCount();
 
-		if(predictorReset = in.readBool()) predictorResetGroup = in.readBits(5);
+		if(predictorReset = in.readBool())
+			predictorResetGroup = in.readBits(5);
 
 		final int maxPredSFB = sf.getMaximalPredictionSFB();
 		final int length = Math.min(maxSFB, maxPredSFB);
@@ -50,36 +51,32 @@ public class ICPrediction {
 		for(int sfb = 0; sfb<length; sfb++) {
 			predictionUsed[sfb] = in.readBool();
 		}
-		Constants.LOGGER.log(Level.WARNING, "ICPrediction: maxSFB={0}, maxPredSFB={1}", new int[]{maxSFB, maxPredSFB});
-		/*//if maxSFB<maxPredSFB set remaining to false
-		for(int sfb = length; sfb<maxPredSFB; sfb++) {
-		predictionUsed[sfb] = false;
-		}*/
+		if(LOGGER.isLoggable(Level.WARNING))
+			LOGGER.log(Level.WARNING, "ICPrediction: maxSFB={0}, maxPredSFB={1}",
+					new Integer[]{maxSFB, maxPredSFB});
 	}
 
-	public void setPredictionUnused(int sfb) {
-		predictionUsed[sfb] = false;
-	}
+	public void process(ICSInfo info, float[] data) {
 
-	public void process(ICStream ics, float[] data, SampleFrequency sf) {
-		final ICSInfo info = ics.getInfo();
-
-		if(info.isEightShortFrame()) resetAllPredictors();
+		if(info.isEightShortFrame())
+			resetAllPredictors();
 		else {
-			final int len = Math.min(sf.getMaximalPredictionSFB(), info.getMaxSFB());
+			final int len = info.getSFB();
 			final int[] swbOffsets = info.getSWBOffsets();
-			int k;
 			for(int sfb = 0; sfb<len; sfb++) {
-				for(k = swbOffsets[sfb]; k<swbOffsets[sfb+1]; k++) {
+				for(int k = swbOffsets[sfb]; k<swbOffsets[sfb+1]; k++) {
 					predict(data, k, predictionUsed[sfb]);
 				}
 			}
-			if(predictorReset) resetPredictorGroup(predictorResetGroup);
+			if(predictorReset)
+				resetPredictorGroup(predictorResetGroup);
 		}
 	}
 
 	private void resetPredictState(int index) {
-		if(states[index]==null) states[index] = new PredictorState();
+		if(states[index]==null)
+			states[index] = new PredictorState();
+
 		states[index].r0 = 0;
 		states[index].r1 = 0;
 		states[index].cor0 = 0;
@@ -89,21 +86,21 @@ public class ICPrediction {
 	}
 
 	private void resetAllPredictors() {
-		int i;
-		for(i = 0; i<states.length; i++) {
+		for(int i = 0; i<states.length; i++) {
 			resetPredictState(i);
 		}
 	}
 
 	private void resetPredictorGroup(int group) {
-		int i;
-		for(i = group-1; i<states.length; i += 30) {
+		for(int i = group-1; i<states.length; i += 30) {
 			resetPredictState(i);
 		}
 	}
 
 	private void predict(float[] data, int off, boolean output) {
-		if(states[off]==null) states[off] = new PredictorState();
+		if(states[off]==null)
+			states[off] = new PredictorState();
+
 		final PredictorState state = states[off];
 		final float r0 = state.r0, r1 = state.r1;
 		final float cor0 = state.cor0, cor1 = state.cor1;
@@ -113,7 +110,8 @@ public class ICPrediction {
 		final float k2 = var1>1 ? cor1*even(A/var1) : 0;
 
 		final float pv = round(k1*r0+k2*r1);
-		if(output) data[off] += pv*SF_SCALE;
+		if(output)
+			data[off] += pv*SF_SCALE;
 
 		final float e0 = (data[off]*INV_SF_SCALE);
 		final float e1 = e0-k1*r0;

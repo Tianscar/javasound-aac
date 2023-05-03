@@ -1,7 +1,8 @@
 package net.sourceforge.jaad.mp4.boxes.impl.sampleentries.codec;
 
+import net.sourceforge.jaad.mp4.MP4Input;
+
 import java.io.IOException;
-import net.sourceforge.jaad.mp4.MP4InputStream;
 
 /**
  * This box contains parameters for Extended AC-3 decoders. For more information
@@ -22,7 +23,7 @@ public class EAC3SpecificBox extends CodecSpecificBox {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 		long l = in.readBytes(2);
 		//13 bits dataRate
 		dataRate = (int) ((l>>3)&0x1FFF);
@@ -46,7 +47,7 @@ public class EAC3SpecificBox extends CodecSpecificBox {
 			dependentSubstreamCount[i] = (int) ((l>>1)&0xF);
 			if(dependentSubstreamCount[i]>0) {
 				//9 bits dependent substream location
-				l = (l<<8)|in.read();
+				l = (l<<8)|in.readByte();
 				dependentSubstreamLocation[i] = (int) (l&0x1FF);
 			}
 			//else: 1 bit reserved

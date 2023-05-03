@@ -24,7 +24,8 @@ public class AACAudioFileReader extends AudioFileReader {
 	@Override
 	public AudioFileFormat getAudioFileFormat(InputStream in) throws UnsupportedAudioFileException, IOException {
 		try {
-			if(!in.markSupported()) in = new BufferedInputStream(in);
+			if(!in.markSupported())
+				in = new BufferedInputStream(in);
 			in.mark(4);
 			return getAudioFileFormat(in, AudioSystem.NOT_SPECIFIED);
 		}
@@ -40,7 +41,8 @@ public class AACAudioFileReader extends AudioFileReader {
 			return getAudioFileFormat(in);
 		}
 		finally {
-			if(in!=null) in.close();
+			if(in!=null)
+				in.close();
 		}
 	}
 
@@ -55,7 +57,8 @@ public class AACAudioFileReader extends AudioFileReader {
 			return aff;
 		}
 		finally {
-			if(in!=null) in.close();
+			if(in!=null)
+				in.close();
 		}
 	}
 
@@ -95,7 +98,7 @@ public class AACAudioFileReader extends AudioFileReader {
 			canHandle = false;	//Ogg stream ?
 		}
 		else {
-			final BitStream bit = new BitStream(head);
+			//final BitStream bit = new BitStream(head);
 			try {
 				ADTSDemultiplexer adts = new ADTSDemultiplexer(in);
 				canHandle = true;
@@ -108,14 +111,16 @@ public class AACAudioFileReader extends AudioFileReader {
 			final AudioFormat format = new AudioFormat(AAC_ENCODING, AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, mediaLength, AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, true);
 			return new AudioFileFormat(AAC, format, AudioSystem.NOT_SPECIFIED);
 		}
-		else throw new UnsupportedAudioFileException();
+		else
+			throw new UnsupportedAudioFileException();
 	}
 
 	//================================================
 	@Override
 	public AudioInputStream getAudioInputStream(InputStream in) throws UnsupportedAudioFileException, IOException {
 		try {
-			if(!in.markSupported()) in = new BufferedInputStream(in);
+			if(!in.markSupported())
+				in = new BufferedInputStream(in);
 			in.mark(1000);
 			final AudioFileFormat aff = getAudioFileFormat(in, AudioSystem.NOT_SPECIFIED);
 			in.reset();
@@ -142,11 +147,13 @@ public class AACAudioFileReader extends AudioFileReader {
 			return getAudioInputStream(in);
 		}
 		catch(UnsupportedAudioFileException e) {
-			if(in!=null) in.close();
+			if(in!=null)
+				in.close();
 			throw e;
 		}
 		catch(IOException e) {
-			if(in!=null) in.close();
+			if(in!=null)
+				in.close();
 			throw e;
 		}
 	}
@@ -158,11 +165,13 @@ public class AACAudioFileReader extends AudioFileReader {
 			return getAudioInputStream(in);
 		}
 		catch(UnsupportedAudioFileException e) {
-			if(in!=null) in.close();
+			if(in!=null)
+				in.close();
 			throw e;
 		}
 		catch(IOException e) {
-			if(in!=null) in.close();
+			if(in!=null)
+				in.close();
 			throw e;
 		}
 	}

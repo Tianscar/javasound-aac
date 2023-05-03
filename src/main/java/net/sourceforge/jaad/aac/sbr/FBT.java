@@ -1,14 +1,33 @@
 package net.sourceforge.jaad.aac.sbr;
 
-import java.util.Arrays;
 import net.sourceforge.jaad.aac.SampleFrequency;
 
-class FBT implements Constants {
+import java.util.Arrays;
+
+class FBT {
+
+	static final int[] startMinTable = {7, 7, 10, 11, 12, 16, 16, 17, 24, 32, 35, 48};
+
+	static final int[] offsetIndexTable = {5, 5, 4, 4, 4, 3, 2, 1, 0, 6, 6, 6};
+
+	static final int[][] OFFSET = {
+		{-8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7}, //16000
+		{-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 9, 11, 13}, //22050
+		{-5, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 9, 11, 13, 16}, //24000
+		{-6, -4, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 9, 11, 13, 16}, //32000
+		{-4, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 9, 11, 13, 16, 20}, //44100-64000
+		{-2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 9, 11, 13, 16, 20, 24}, //>64000
+		{0, 1, 2, 3, 4, 5, 6, 7, 9, 11, 13, 16, 20, 24, 28, 33}
+	};
+
+	public static final int LO_RES = 0;
+
+	public static final int HI_RES = 1;
 
 	/* calculate the start QMF channel for the master frequency band table */
 	/* parameter is also called k0 */
 	public static int qmf_start_channel(int bs_start_freq, int bs_samplerate_mode,
-		SampleFrequency sample_rate) {
+										SampleFrequency sample_rate) {
 
 		int startMin = startMinTable[sample_rate.getIndex()];
 		int offsetIndex = offsetIndexTable[sample_rate.getIndex()];
@@ -64,11 +83,7 @@ class FBT implements Constants {
 	 */
 	public static int master_frequency_table_fs0(SBR sbr, int k0, int k2,
 		boolean bs_alter_scale) {
-		int incr;
-		int k;
-		int dk;
-		int nrBands, k2Achieved;
-		int k2Diff;
+
 		int[] vDk = new int[64];
 
 		/* mft only defined for k2 > k0 */
@@ -77,27 +92,23 @@ class FBT implements Constants {
 			return 1;
 		}
 
-		dk = bs_alter_scale ? 2 : 1;
+		int dk = bs_alter_scale ? 2 : 1;
 
-		if(bs_alter_scale) {
-			nrBands = (((k2-k0+2)>>2)<<1);
-		}
-		else {
-			nrBands = (((k2-k0)>>1)<<1);
-		}
+		int nrBands = bs_alter_scale ? (((k2-k0+2)>>2)<<1) : (((k2-k0)>>1)<<1);
+
 		nrBands = Math.min(nrBands, 63);
 		if(nrBands<=0)
 			return 1;
 
-		k2Achieved = k0+nrBands*dk;
-		k2Diff = k2-k2Achieved;
-		for(k = 0; k<nrBands; k++) {
+		int k2Achieved = k0+nrBands*dk;
+		int k2Diff = k2-k2Achieved;
+		for(int k = 0; k<nrBands; k++) {
 			vDk[k] = dk;
 		}
 
 		if(k2Diff!=0) {
-			incr = (k2Diff>0) ? -1 : 1;
-			k = ((k2Diff>0) ? (nrBands-1) : 0);
+			int incr = (k2Diff>0) ? -1 : 1;
+			int k = ((k2Diff>0) ? (nrBands-1) : 0);
 
 			while(k2Diff!=0) {
 				vDk[k] -= incr;
@@ -107,7 +118,7 @@ class FBT implements Constants {
 		}
 
 		sbr.f_master[0] = k0;
-		for(k = 1; k<=nrBands; k++) {
+		for(int k = 1; k<=nrBands; k++) {
 			sbr.f_master[k] = (sbr.f_master[k-1]+vDk[k-1]);
 		}
 
@@ -123,7 +134,8 @@ class FBT implements Constants {
 	 */
 	public static int find_bands(int warp, int bands, int a0, int a1) {
 		float div = (float) Math.log(2.0);
-		if(warp!=0) div *= 1.3f;
+		if(warp!=0)
+			div *= 1.3f;
 
 		return (int) (bands*Math.log((float) a1/(float) a0)/div+0.5);
 	}
@@ -137,15 +149,10 @@ class FBT implements Constants {
 	 */
 	public static int master_frequency_table(SBR sbr, int k0, int k2,
 		int bs_freq_scale, boolean bs_alter_scale) {
-		int k, bands;
-		boolean twoRegions;
-		int k1;
-		int nrBand0, nrBand1;
+
 		int[] vDk0 = new int[64], vDk1 = new int[64];
 		int[] vk0 = new int[64], vk1 = new int[64];
 		int[] temp1 = {6, 5, 4};
-		float q, qk;
-		int A_1;
 
 		/* mft only defined for k2 > k0 */
 		if(k2<=k0) {
@@ -153,8 +160,10 @@ class FBT implements Constants {
 			return 1;
 		}
 
-		bands = temp1[bs_freq_scale-1];
+		int bands = temp1[bs_freq_scale-1];
 
+		boolean twoRegions;
+		int k1;
 		if((float) k2/(float) k0>2.2449) {
 			twoRegions = true;
 			k1 = k0<<1;
@@ -164,15 +173,15 @@ class FBT implements Constants {
 			k1 = k2;
 		}
 
-		nrBand0 = (2*find_bands(0, bands, k0, k1));
+		int nrBand0 = (2*find_bands(0, bands, k0, k1));
 		nrBand0 = Math.min(nrBand0, 63);
 		if(nrBand0<=0)
 			return 1;
 
-		q = find_initial_power(nrBand0, k0, k1);
-		qk = k0;
-		A_1 = (int) (qk+0.5f);
-		for(k = 0; k<=nrBand0; k++) {
+		float q = find_initial_power(nrBand0, k0, k1);
+		float qk = k0;
+		int A_1 = (int) (qk+0.5f);
+		for(int k = 0; k<=nrBand0; k++) {
 			int A_0 = A_1;
 			qk *= q;
 			A_1 = (int) (qk+0.5f);
@@ -184,14 +193,14 @@ class FBT implements Constants {
 		Arrays.sort(vDk0, 0, nrBand0);
 
 		vk0[0] = k0;
-		for(k = 1; k<=nrBand0; k++) {
+		for(int k = 1; k<=nrBand0; k++) {
 			vk0[k] = vk0[k-1]+vDk0[k-1];
 			if(vDk0[k-1]==0)
 				return 1;
 		}
 
 		if(!twoRegions) {
-			for(k = 0; k<=nrBand0; k++) {
+			for(int k = 0; k<=nrBand0; k++) {
 				sbr.f_master[k] = vk0[k];
 			}
 
@@ -200,13 +209,13 @@ class FBT implements Constants {
 			return 0;
 		}
 
-		nrBand1 = (2*find_bands(1 /* warped */, bands, k1, k2));
+		int nrBand1 = (2*find_bands(1 /* warped */, bands, k1, k2));
 		nrBand1 = Math.min(nrBand1, 63);
 
 		q = find_initial_power(nrBand1, k1, k2);
 		qk = k1;
 		A_1 = (int) (qk+0.5f);
-		for(k = 0; k<=nrBand1-1; k++) {
+		for(int k = 0; k<=nrBand1-1; k++) {
 			int A_0 = A_1;
 			qk *= q;
 			A_1 = (int) (qk+0.5f);
@@ -228,7 +237,7 @@ class FBT implements Constants {
 		//qsort(vDk1, nrBand1, sizeof(vDk1[0]), longcmp);
 		Arrays.sort(vDk1, 0, nrBand1);
 		vk1[0] = k1;
-		for(k = 1; k<=nrBand1; k++) {
+		for(int k = 1; k<=nrBand1; k++) {
 			vk1[k] = vk1[k-1]+vDk1[k-1];
 			if(vDk1[k-1]==0)
 				return 1;
@@ -236,10 +245,10 @@ class FBT implements Constants {
 
 		sbr.N_master = nrBand0+nrBand1;
 		sbr.N_master = Math.min(sbr.N_master, 64);
-		for(k = 0; k<=nrBand0; k++) {
+		for(int k = 0; k<=nrBand0; k++) {
 			sbr.f_master[k] = vk0[k];
 		}
-		for(k = nrBand0+1; k<=sbr.N_master; k++) {
+		for(int k = nrBand0+1; k<=sbr.N_master; k++) {
 			sbr.f_master[k] = vk1[k-nrBand0];
 		}
 
@@ -249,8 +258,6 @@ class FBT implements Constants {
 	/* calculate the derived frequency border tables from f_master */
 	public static int derived_frequency_table(SBR sbr, int bs_xover_band,
 		int k2) {
-		int k, i = 0;
-		int minus;
 
 		/* The following relation shall be satisfied: bs_xover_band < N_Master */
 		if(sbr.N_master<=bs_xover_band)
@@ -262,7 +269,7 @@ class FBT implements Constants {
 		sbr.n[0] = sbr.N_low;
 		sbr.n[1] = sbr.N_high;
 
-		for(k = 0; k<=sbr.N_high; k++) {
+		for(int k = 0; k<=sbr.N_high; k++) {
 			sbr.f_table_res[HI_RES][k] = sbr.f_master[k+bs_xover_band];
 		}
 
@@ -273,30 +280,26 @@ class FBT implements Constants {
 		if(sbr.kx+sbr.M>64)
 			return 1;
 
-		minus = ((sbr.N_high&1)!=0) ? 1 : 0;
+		int minus = ((sbr.N_high&1)!=0) ? 1 : 0;
 
-		for(k = 0; k<=sbr.N_low; k++) {
-			if(k==0)
-				i = 0;
-			else
-				i = (2*k-minus);
+		for(int i=0, k=0; k<=sbr.N_low; k++) {
+			if(k>0)
+				i = 2*k-minus;
+
 			sbr.f_table_res[LO_RES][k] = sbr.f_table_res[HI_RES][i];
 		}
 
 		sbr.N_Q = 0;
-		if(sbr.bs_noise_bands==0) {
+		if(sbr.hdr.bs_noise_bands==0) {
 			sbr.N_Q = 1;
 		}
 		else {
-			sbr.N_Q = (Math.max(1, find_bands(0, sbr.bs_noise_bands, sbr.kx, k2)));
+			sbr.N_Q = (Math.max(1, find_bands(0, sbr.hdr.bs_noise_bands, sbr.kx, k2)));
 			sbr.N_Q = Math.min(5, sbr.N_Q);
 		}
 
-		for(k = 0; k<=sbr.N_Q; k++) {
-			if(k==0) {
-				i = 0;
-			}
-			else {
+		for(int i=0, k=0; k<=sbr.N_Q; k++) {
+			if(k>0) {
 				/* i = i + (int32_t)((sbr.N_low - i)/(sbr.N_Q + 1 - k)); */
 				i += (sbr.N_low-i)/(sbr.N_Q+1-k);
 			}
@@ -304,9 +307,8 @@ class FBT implements Constants {
 		}
 
 		/* build table for mapping k to g in hf patching */
-		for(k = 0; k<64; k++) {
-			int g;
-			for(g = 0; g<sbr.N_Q; g++) {
+		for(int k = 0; k<64; k++) {
+			for(int g = 0; g<sbr.N_Q; g++) {
 				if((sbr.f_table_noise[g]<=k)
 					&&(k<sbr.f_table_noise[g+1])) {
 					sbr.table_map_k_to_g[k] = g;
@@ -327,34 +329,31 @@ class FBT implements Constants {
 
 	public static void limiter_frequency_table(SBR sbr) {
 
-		int k, s;
-		int nrLim;
-
 		sbr.f_table_lim[0][0] = sbr.f_table_res[LO_RES][0]-sbr.kx;
 		sbr.f_table_lim[0][1] = sbr.f_table_res[LO_RES][sbr.N_low]-sbr.kx;
 		sbr.N_L[0] = 1;
 
-		for(s = 1; s<4; s++) {
+		for(int s = 1; s<4; s++) {
 			int[] limTable = new int[100 /*TODO*/];
 			int[] patchBorders = new int[64/*??*/];
 
 			patchBorders[0] = sbr.kx;
-			for(k = 1; k<=sbr.noPatches; k++) {
+			for(int k = 1; k<=sbr.noPatches; k++) {
 				patchBorders[k] = patchBorders[k-1]+sbr.patchNoSubbands[k-1];
 			}
 
-			for(k = 0; k<=sbr.N_low; k++) {
+			for(int k = 0; k<=sbr.N_low; k++) {
 				limTable[k] = sbr.f_table_res[LO_RES][k];
 			}
-			for(k = 1; k<sbr.noPatches; k++) {
+			for(int k = 1; k<sbr.noPatches; k++) {
 				limTable[k+sbr.N_low] = patchBorders[k];
 			}
 
 			/* needed */
 			//qsort(limTable, sbr.noPatches+sbr.N_low, sizeof(limTable[0]), longcmp);
 			Arrays.sort(limTable, 0, sbr.noPatches+sbr.N_low);
-			k = 1;
-			nrLim = sbr.noPatches+sbr.N_low-1;
+			int k = 1;
+			int nrLim = sbr.noPatches+sbr.N_low-1;
 
 			if(nrLim<0) // TODO: BIG FAT PROBLEM
 				return;
@@ -369,16 +368,15 @@ class FBT implements Constants {
 					nOctaves = 0;
 
 				if(nOctaves<limiterBandsCompare[s-1]) {
-					int i;
 					if(limTable[k]!=limTable[k-1]) {
 						boolean found = false, found2 = false;
-						for(i = 0; i<=sbr.noPatches; i++) {
+						for(int i = 0; i<=sbr.noPatches; i++) {
 							if(limTable[k]==patchBorders[i])
 								found = true;
 						}
 						if(found) {
 							found2 = false;
-							for(i = 0; i<=sbr.noPatches; i++) {
+							for(int i = 0; i<=sbr.noPatches; i++) {
 								if(limTable[k-1]==patchBorders[i])
 									found2 = true;
 							}
@@ -410,8 +408,8 @@ class FBT implements Constants {
 			}
 
 			sbr.N_L[s] = nrLim;
-			for(k = 0; k<=nrLim; k++) {
-				sbr.f_table_lim[s][k] = limTable[k]-sbr.kx;
+			for(int l = 0; l<=nrLim; l++) {
+				sbr.f_table_lim[s][l] = limTable[l]-sbr.kx;
 			}
 
 		}

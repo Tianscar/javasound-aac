@@ -1,14 +1,14 @@
 package net.sourceforge.jaad.mp4.boxes.impl.meta;
 
+import net.sourceforge.jaad.mp4.MP4Input;
+import net.sourceforge.jaad.mp4.boxes.FullBox;
+
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
-import net.sourceforge.jaad.mp4.MP4InputStream;
-import net.sourceforge.jaad.mp4.boxes.BoxTypes;
-import net.sourceforge.jaad.mp4.boxes.FullBox;
 
 /**
  * This box contains the data for a metadata tag. It is right below an
@@ -56,9 +56,11 @@ public class ITunesMetadataBox extends FullBox {
 
 		private static DataType forInt(int i) {
 			DataType type = null;
-			if(i>=0&&i<TYPES.length) type = TYPES[i];
+			if(i>=0&&i<TYPES.length)
+				type = TYPES[i];
 
-			if(type==null) type = UNDEFINED;
+			if(type==null)
+				type = UNDEFINED;
 			return type;
 		}
 	}
@@ -70,7 +72,7 @@ public class ITunesMetadataBox extends FullBox {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 		super.decode(in);
 
 		dataType = DataType.forInt(flags);
@@ -138,7 +140,8 @@ public class ITunesMetadataBox extends FullBox {
 			final SimpleDateFormat sdf = new SimpleDateFormat(TIMESTAMPS[i]);
 			date = sdf.parse(new String(data), new ParsePosition(0));
 		}
-		else date = null;
+		else
+			date = null;
 		return date;
 	}
 }

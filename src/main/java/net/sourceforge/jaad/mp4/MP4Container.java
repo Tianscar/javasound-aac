@@ -1,15 +1,5 @@
 package net.sourceforge.jaad.mp4;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.sourceforge.jaad.mp4.api.Brand;
 import net.sourceforge.jaad.mp4.api.Movie;
 import net.sourceforge.jaad.mp4.boxes.Box;
@@ -17,6 +7,11 @@ import net.sourceforge.jaad.mp4.boxes.BoxFactory;
 import net.sourceforge.jaad.mp4.boxes.BoxTypes;
 import net.sourceforge.jaad.mp4.boxes.impl.FileTypeBox;
 import net.sourceforge.jaad.mp4.boxes.impl.ProgressiveDownloadInformationBox;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * The MP4Container is the central class for the MP4 demultiplexer. It reads the
@@ -47,18 +42,7 @@ import net.sourceforge.jaad.mp4.boxes.impl.ProgressiveDownloadInformationBox;
  */
 public class MP4Container {
 
-	static {
-		Logger log = Logger.getLogger("MP4 API");
-		for(Handler h : log.getHandlers()) {
-			log.removeHandler(h);
-		}
-		log.setLevel(Level.WARNING);
-
-		final ConsoleHandler h = new ConsoleHandler();
-		h.setLevel(Level.ALL);
-		log.addHandler(h);
-	}
-	private final MP4InputStream in;
+	private final MP4Input in;
 	private final List<Box> boxes;
 	private Brand major, minor;
 	private Brand[] compatible;
@@ -67,15 +51,8 @@ public class MP4Container {
 	private Box moov;
 	private Movie movie;
 
-	public MP4Container(InputStream in) throws IOException {
-		this.in = new MP4InputStream(in);
-		boxes = new ArrayList<Box>();
-
-		readContent();
-	}
-
-	public MP4Container(RandomAccessFile in) throws IOException {
-		this.in = new MP4InputStream(in);
+	public MP4Container(MP4Input in) throws IOException {
+		this.in = in;
 		boxes = new ArrayList<Box>();
 
 		readContent();
@@ -88,34 +65,42 @@ public class MP4Container {
 		boolean moovFound = false;
 		while(in.hasLeft()) {
 			box = BoxFactory.parseBox(null, in);
-			if(boxes.isEmpty()&&box.getType()!=BoxTypes.FILE_TYPE_BOX) throw new MP4Exception("no MP4 signature found");
+			if(boxes.isEmpty()&&box.getType()!=BoxTypes.FILE_TYPE_BOX)
+			    throw new MP4Exception("no MP4 signature found");
 			boxes.add(box);
 
 			type = box.getType();
 			if(type==BoxTypes.FILE_TYPE_BOX) {
-				if(ftyp==null) ftyp = (FileTypeBox) box;
+				if(ftyp==null)
+					ftyp = (FileTypeBox) box;
 			}
 			else if(type==BoxTypes.MOVIE_BOX) {
-				if(movie==null) moov = box;
+				if(movie==null)
+					moov = box;
 				moovFound = true;
 			}
 			else if(type==BoxTypes.PROGRESSIVE_DOWNLOAD_INFORMATION_BOX) {
-				if(pdin==null) pdin = (ProgressiveDownloadInformationBox) box;
+				if(pdin==null)
+					pdin = (ProgressiveDownloadInformationBox) box;
 			}
 			else if(type==BoxTypes.MEDIA_DATA_BOX) {
-				if(moovFound) break;
-				else if(!in.hasRandomAccess()) throw new MP4Exception("movie box at end of file, need random access");
+				if(moovFound)
+					break;
+				else if(!in.hasRandomAccess())
+					throw new MP4Exception("movie box at end of file, need random access");
 			}
 		}
 	}
 
 	public Brand getMajorBrand() {
-		if(major==null) major = Brand.forID(ftyp.getMajorBrand());
+		if(major==null)
+			major = Brand.forID(ftyp.getMajorBrand());
 		return major;
 	}
 
 	public Brand getMinorBrand() {
-		if(minor==null) minor = Brand.forID(ftyp.getMajorBrand());
+		if(minor==null)
+			minor = Brand.forID(ftyp.getMajorBrand());
 		return minor;
 	}
 
@@ -132,8 +117,10 @@ public class MP4Container {
 
 	//TODO: pdin, movie fragments??
 	public Movie getMovie() {
-		if(moov==null) return null;
-		else if(movie==null) movie = new Movie(moov, in);
+		if(moov==null)
+			return null;
+		else if(movie==null)
+			movie = new Movie(moov, in);
 		return movie;
 	}
 

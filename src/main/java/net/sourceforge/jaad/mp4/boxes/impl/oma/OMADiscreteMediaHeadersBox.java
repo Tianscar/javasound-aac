@@ -1,8 +1,9 @@
 package net.sourceforge.jaad.mp4.boxes.impl.oma;
 
-import java.io.IOException;
-import net.sourceforge.jaad.mp4.MP4InputStream;
+import net.sourceforge.jaad.mp4.MP4Input;
 import net.sourceforge.jaad.mp4.boxes.FullBox;
+
+import java.io.IOException;
 
 /**
  * The Discrete Media headers box includes fields specific to the DCF format and
@@ -21,10 +22,10 @@ public class OMADiscreteMediaHeadersBox extends FullBox {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 		super.decode(in);
 
-		final int len = in.read();
+		final int len = in.readByte();
 		contentType = in.readString(len);
 		
 		readChildren(in);

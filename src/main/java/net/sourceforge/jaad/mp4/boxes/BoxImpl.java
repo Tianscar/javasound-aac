@@ -1,10 +1,11 @@
 package net.sourceforge.jaad.mp4.boxes;
 
+import net.sourceforge.jaad.mp4.MP4Input;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import net.sourceforge.jaad.mp4.MP4InputStream;
 
 public class BoxImpl implements Box {
 
@@ -26,7 +27,7 @@ public class BoxImpl implements Box {
 		this.offset = offset;
 	}
 
-	protected long getLeft(MP4InputStream in) throws IOException {
+	protected long getLeft(MP4Input in) throws IOException {
 		return (offset+size)-in.getOffset();
 	}
 
@@ -37,7 +38,7 @@ public class BoxImpl implements Box {
 	 * @param in an input stream
 	 * @throws IOException if an error occurs while reading
 	 */
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 	}
 
 	public long getType() {
@@ -86,7 +87,8 @@ public class BoxImpl implements Box {
 		int i = 0;
 		while(box==null&&i<children.size()) {
 			b = children.get(i);
-			if(b.getType()==type) box = b;
+			if(b.getType()==type)
+				box = b;
 			i++;
 		}
 		return box;
@@ -99,23 +101,28 @@ public class BoxImpl implements Box {
 	public List<Box> getChildren(long type) {
 		List<Box> l = new ArrayList<Box>();
 		for(Box box : children) {
-			if(box.getType()==type) l.add(box);
+			if(box.getType()==type)
+				l.add(box);
 		}
 		return l;
 	}
 
-	protected void readChildren(MP4InputStream in) throws IOException {
+	protected Box parseBox(MP4Input in) throws IOException {
+		return BoxFactory.parseBox(this, in);
+	}
+
+	protected void readChildren(MP4Input in) throws IOException {
 		Box box;
 		while(in.getOffset()<(offset+size)) {
-			box = BoxFactory.parseBox(this, in);
+			box = parseBox(in);
 			children.add(box);
 		}
 	}
 
-	protected void readChildren(MP4InputStream in, int len) throws IOException {
+	protected void readChildren(MP4Input in, int len) throws IOException {
 		Box box;
 		for(int i = 0; i<len; i++) {
-			box = BoxFactory.parseBox(this, in);
+			box = parseBox(in);
 			children.add(box);
 		}
 	}

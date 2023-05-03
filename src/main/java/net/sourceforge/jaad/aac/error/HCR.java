@@ -3,7 +3,6 @@ package net.sourceforge.jaad.aac.error;
 import net.sourceforge.jaad.aac.AACException;
 import net.sourceforge.jaad.aac.huffman.HCB;
 import net.sourceforge.jaad.aac.syntax.BitStream;
-import net.sourceforge.jaad.aac.syntax.Constants;
 import net.sourceforge.jaad.aac.syntax.ICSInfo;
 import net.sourceforge.jaad.aac.syntax.ICStream;
 
@@ -13,7 +12,7 @@ import net.sourceforge.jaad.aac.syntax.ICStream;
  * section data.
  */
 //TODO: needs decodeSpectralDataER() in BitStream
-public class HCR implements Constants {
+public class HCR {
 
 	private static class Codeword {
 
@@ -83,14 +82,16 @@ public class HCR implements Constants {
 	private static boolean isGoodCB(int cb, int sectCB) {
 		boolean b = false;
 		if((sectCB>HCB.ZERO_HCB&&sectCB<=HCB.ESCAPE_HCB)||(sectCB>=VCB11_FIRST&&sectCB<=VCB11_LAST)) {
-			if(cb<HCB.ESCAPE_HCB) b = ((sectCB==cb)||(sectCB==cb+1));
-			else b = (sectCB==cb);
+			if(cb<HCB.ESCAPE_HCB)
+				b = ((sectCB==cb)||(sectCB==cb+1));
+			else
+				b = (sectCB==cb);
 		}
 		return b;
 	}
 
 	//sectionDataResilience = hDecoder->aacSectionDataResilienceFlag
-	public static void decodeReorderedSpectralData(ICStream ics, BitStream in, short[] spectralData, boolean sectionDataResilience) throws AACException {
+	public static void decodeReorderedSpectralData(ICStream ics, BitStream in, short[] spectralData, boolean sectionDataResilience) {
 		final ICSInfo info = ics.getInfo();
 		final int windowGroupCount = info.getWindowGroupCount();
 		final int maxSFB = info.getMaxSFB();
@@ -106,17 +107,18 @@ public class HCR implements Constants {
 
 		//check parameter
 		final int spDataLen = ics.getReorderedSpectralDataLength();
-		if(spDataLen==0) return;
+		if(spDataLen==0)
+			return;
 
 		final int longestLen = ics.getLongestCodewordLength();
-		if(longestLen==0||longestLen>=spDataLen) throw new AACException("length of longest HCR codeword out of range");
+		if(longestLen==0||longestLen>=spDataLen)
+		    throw new AACException("length of longest HCR codeword out of range");
 
 		//create spOffsets
 		final int[] spOffsets = new int[8];
 		final int shortFrameLen = spectralData.length/8;
 		spOffsets[0] = 0;
-		int g;
-		for(g = 1; g<windowGroupCount; g++) {
+		for(int g = 1; g<windowGroupCount; g++) {
 			spOffsets[g] = spOffsets[g-1]+shortFrameLen*info.getWindowGroupLength(g-1);
 		}
 
@@ -139,19 +141,18 @@ public class HCR implements Constants {
 		int numberOfCodewords = 0;
 		int bitsread = 0;
 
-		int sfb, w_idx, i, thisCB, thisSectCB, cws;
 		//step 1: decode PCW's (set 0), and stuff data in easier-to-use format
 		for(int sortloop = 0; sortloop<lastCB; sortloop++) {
 			//select codebook to process this pass
-			thisCB = preSortCB[sortloop];
+			int thisCB = preSortCB[sortloop];
 
-			for(sfb = 0; sfb<maxSFB; sfb++) {
-				for(w_idx = 0; 4*w_idx<(Math.min(swbOffsets[sfb+1], swbOffsetMax)-swbOffsets[sfb]); w_idx++) {
-					for(g = 0; g<windowGroupCount; g++) {
-						for(i = 0; i<numSec[g]; i++) {
+			for(int sfb = 0; sfb<maxSFB; sfb++) {
+				for(int w_idx = 0; 4*w_idx<(Math.min(swbOffsets[sfb+1], swbOffsetMax)-swbOffsets[sfb]); w_idx++) {
+					for(int g = 0; g<windowGroupCount; g++) {
+						for(int i = 0; i<numSec[g]; i++) {
 							if((sectStart[g][i]<=sfb)&&(sectEnd[g][i]>sfb)) {
 								/* check whether codebook used here is the one we want to process */
-								thisSectCB = sectCB[g][i];
+								int thisSectCB = sectCB[g][i];
 
 								if(isGoodCB(thisCB, thisSectCB)) {
 									//precalculation
@@ -161,7 +162,7 @@ public class HCR implements Constants {
 									int segwidth = Math.min(MAX_CW_LEN[thisSectCB], longestLen);
 
 									//read codewords until end of sfb or end of window group
-									for(cws = 0; (cws<group_cws_count)&&((cws+w_idx*group_cws_count)<sect_sfb_size); cws++) {
+									for(int cws = 0; (cws<group_cws_count)&&((cws+w_idx*group_cws_count)<sect_sfb_size); cws++) {
 										int sp = spOffsets[g]+sectSFBOffsets[g][sfb]+inc*(cws+w_idx*group_cws_count);
 
 										//read and decode PCW
@@ -219,29 +220,32 @@ public class HCR implements Constants {
 			}
 		}
 
-		if(segmentsCount==0) throw new AACException("no segments in HCR");
+		if(segmentsCount==0)
+		    throw new AACException("no segments in HCR");
 
 		final int numberOfSets = numberOfCodewords/segmentsCount;
 
 		//step 2: decode nonPCWs
-		int trial, codewordBase, segmentID, codewordID;
 		for(int set = 1; set<=numberOfSets; set++) {
-			for(trial = 0; trial<segmentsCount; trial++) {
-				for(codewordBase = 0; codewordBase<segmentsCount; codewordBase++) {
-					segmentID = (trial+codewordBase)%segmentsCount;
-					codewordID = codewordBase+set*segmentsCount-segmentsCount;
+			for(int trial = 0; trial<segmentsCount; trial++) {
+				for(int codewordBase = 0; codewordBase<segmentsCount; codewordBase++) {
+					int segmentID = (trial+codewordBase)%segmentsCount;
+					int codewordID = codewordBase+set*segmentsCount-segmentsCount;
 
 					//data up
-					if(codewordID>=numberOfCodewords-segmentsCount) break;
+					if(codewordID>=numberOfCodewords-segmentsCount)
+						break;
 
 					if((codeword[codewordID].decoded==0)&&(segment[segmentID].len>0)) {
-						if(codeword[codewordID].bits.len!=0) segment[segmentID].concatBits(codeword[codewordID].bits);
+						if(codeword[codewordID].bits.len!=0)
+							segment[segmentID].concatBits(codeword[codewordID].bits);
 
 						int tmplen = segment[segmentID].len;
 						/*int ret = Huffman.decodeSpectralDataER(segment[segmentID], codeword[codewordID].cb,
 								spectralData, codeword[codewordID].sp_offset);
 
-						if(ret>=0) codeword[codewordID].decoded = 1;
+						if(ret>=0)
+						    codeword[codewordID].decoded = 1;
 						else {
 							codeword[codewordID].bits = segment[segmentID];
 							codeword[codewordID].bits.len = tmplen;
@@ -250,7 +254,7 @@ public class HCR implements Constants {
 					}
 				}
 			}
-			for(i = 0; i<segmentsCount; i++) {
+			for(int i = 0; i<segmentsCount; i++) {
 				segment[i].rewindReverse();
 			}
 		}

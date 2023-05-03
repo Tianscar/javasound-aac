@@ -1,9 +1,8 @@
 package net.sourceforge.jaad.aac.gain;
 
-import net.sourceforge.jaad.aac.AACException;
 import net.sourceforge.jaad.aac.syntax.BitStream;
 import net.sourceforge.jaad.aac.syntax.ICSInfo.WindowSequence;
-import java.util.Arrays;
+import net.sourceforge.jaad.aac.tools.Utils;
 
 public class GainControl implements GCConstants {
 
@@ -30,7 +29,7 @@ public class GainControl implements GCConstants {
 		overlap = new float[BANDS][lbLong*2];
 	}
 
-	public void decode(BitStream in, WindowSequence winSeq) throws AACException {
+	public void decode(BitStream in, WindowSequence winSeq) {
 		maxBand = in.readBits(2)+1;
 
 		int wdLen, locBits, locBits2 = 0;
@@ -61,22 +60,21 @@ public class GainControl implements GCConstants {
 		level = new int[maxBand][wdLen][];
 		location = new int[maxBand][wdLen][];
 
-		int wd, k, len, bits;
 		for(int bd = 1; bd<maxBand; bd++) {
-			for(wd = 0; wd<wdLen; wd++) {
-				len = in.readBits(3);
+			for(int wd = 0; wd<wdLen; wd++) {
+				int len = in.readBits(3);
 				level[bd][wd] = new int[len];
 				location[bd][wd] = new int[len];
-				for(k = 0; k<len; k++) {
+				for(int k = 0; k<len; k++) {
 					level[bd][wd][k] = in.readBits(4);
-					bits = (wd==0) ? locBits : locBits2;
+					int bits = (wd==0) ? locBits : locBits2;
 					location[bd][wd][k] = in.readBits(bits);
 				}
 			}
 		}
 	}
 
-	public void process(float[] data, int winShape, int winShapePrev, WindowSequence winSeq) throws AACException {
+	public void process(float[] data, int winShape, int winShapePrev, WindowSequence winSeq) {
 		imdct.process(data, buffer1, winShape, winShapePrev, winSeq);
 
 		for(int i = 0; i<BANDS; i++) {
@@ -93,32 +91,30 @@ public class GainControl implements GCConstants {
 	 * - the reconstructed time domain signal produces by overlap-add
 	 */
 	private void compensate(float[] in, float[][] out, WindowSequence winSeq, int band) {
-		int j;
 		if(winSeq.equals(WindowSequence.EIGHT_SHORT_SEQUENCE)) {
-			int a, b;
 			for(int k = 0; k<8; k++) {
 				//calculation
 				calculateFunctionData(lbShort*2, band, winSeq, k);
 				//applying
-				for(j = 0; j<lbShort*2; j++) {
-					a = band*lbLong*2+k*lbShort*2+j;
+				for(int j = 0; j<lbShort*2; j++) {
+					int a = band*lbLong*2+k*lbShort*2+j;
 					in[a] *= function[j];
 				}
 				//overlapping
-				for(j = 0; j<lbShort; j++) {
-					a = j+lbLong*7/16+lbShort*k;
-					b = band*lbLong*2+k*lbShort*2+j;
+				for(int j = 0; j<lbShort; j++) {
+					int a = j+lbLong*7/16+lbShort*k;
+					int b = band*lbLong*2+k*lbShort*2+j;
 					overlap[band][a] += in[b];
 				}
 				//store for next frame
-				for(j = 0; j<lbShort; j++) {
-					a = j+lbLong*7/16+lbShort*(k+1);
-					b = band*lbLong*2+k*lbShort*2+lbShort+j;
+				for(int j = 0; j<lbShort; j++) {
+					int a = j+lbLong*7/16+lbShort*(k+1);
+					int b = band*lbLong*2+k*lbShort*2+lbShort+j;
 
 					overlap[band][a] = in[b];
 				}
-				locationPrev[band][0] = Arrays.copyOf(location[band][k], location[band][k].length);
-				levelPrev[band][0] = Arrays.copyOf(level[band][k], level[band][k].length);
+				locationPrev[band][0] = Utils.copyOf(location[band][k]);
+				levelPrev[band][0] = Utils.copyOf(level[band][k]);
 			}
 			System.arraycopy(overlap[band], 0, out[band], 0, lbLong);
 			System.arraycopy(overlap[band], lbLong, overlap[band], 0, lbLong);
@@ -127,20 +123,20 @@ public class GainControl implements GCConstants {
 			//calculation
 			calculateFunctionData(lbLong*2, band, winSeq, 0);
 			//applying
-			for(j = 0; j<lbLong*2; j++) {
+			for(int j = 0; j<lbLong*2; j++) {
 				in[band*lbLong*2+j] *= function[j];
 			}
 			//overlapping
-			for(j = 0; j<lbLong; j++) {
+			for(int j = 0; j<lbLong; j++) {
 				out[band][j] = overlap[band][j]+in[band*lbLong*2+j];
 			}
 			//store for next frame
-			for(j = 0; j<lbLong; j++) {
+			for(int j = 0; j<lbLong; j++) {
 				overlap[band][j] = in[band*lbLong*2+lbLong+j];
 			}
 			final int lastBlock = winSeq.equals(WindowSequence.ONLY_LONG_SEQUENCE) ? 1 : 0;
-			locationPrev[band][0] = Arrays.copyOf(location[band][lastBlock], location[band][lastBlock].length);
-			levelPrev[band][0] = Arrays.copyOf(level[band][lastBlock], level[band][lastBlock].length);
+			locationPrev[band][0] = Utils.copyOf(location[band][lastBlock]);
+			levelPrev[band][0] = Utils.copyOf(level[band][lastBlock]);
 		}
 	}
 
@@ -186,40 +182,40 @@ public class GainControl implements GCConstants {
 		}
 
 		//calculate a gain modification function
-		int i;
 		int flatLen = 0;
 		if(winSeq.equals(WindowSequence.LONG_STOP_SEQUENCE)) {
 			flatLen = samples/2-maxLocGain0-maxLocGain1;
-			for(i = 0; i<flatLen; i++) {
+			for(int i = 0; i<flatLen; i++) {
 				modFunc[i] = 1.0f;
 			}
 		}
-		if(winSeq.equals(WindowSequence.ONLY_LONG_SEQUENCE)||winSeq.equals(WindowSequence.EIGHT_SHORT_SEQUENCE)) levA[0] = 1.0f;
+		if(winSeq.equals(WindowSequence.ONLY_LONG_SEQUENCE)||winSeq.equals(WindowSequence.EIGHT_SHORT_SEQUENCE))
+			levA[0] = 1.0f;
 
-		for(i = 0; i<maxLocGain0; i++) {
+		for(int i = 0; i<maxLocGain0; i++) {
 			modFunc[i+flatLen] = levA[0]*secLevel*buf1[i];
 		}
-		for(i = 0; i<maxLocGain1; i++) {
+		for(int i = 0; i<maxLocGain1; i++) {
 			modFunc[i+flatLen+maxLocGain0] = levA[0]*buf2[i];
 		}
 
 		if(winSeq.equals(WindowSequence.LONG_START_SEQUENCE)) {
-			for(i = 0; i<maxLocGain2; i++) {
+			for(int i = 0; i<maxLocGain2; i++) {
 				modFunc[i+maxLocGain0+maxLocGain1] = buf3[i];
 			}
 			flatLen = samples/2-maxLocGain1-maxLocGain2;
-			for(i = 0; i<flatLen; i++) {
+			for(int i = 0; i<flatLen; i++) {
 				modFunc[i+maxLocGain0+maxLocGain1+maxLocGain2] = 1.0f;
 			}
 		}
 		else if(winSeq.equals(WindowSequence.LONG_STOP_SEQUENCE)) {
-			for(i = 0; i<maxLocGain2; i++) {
+			for(int i = 0; i<maxLocGain2; i++) {
 				modFunc[i+flatLen+maxLocGain0+maxLocGain1] = buf3[i];
 			}
 		}
 
 		//calculate a gain control function
-		for(i = 0; i<samples; i++) {
+		for(int i = 0; i<samples; i++) {
 			function[i] = 1.0f/modFunc[i];
 		}
 	}
@@ -235,36 +231,40 @@ public class GainControl implements GCConstants {
 		final int[] lvl = prev ? levelPrev[bd][wd] : level[bd][wd];
 		final int length = lct.length;
 
-		int lngain;
-		int i;
-		for(i = 0; i<length; i++) {
+		for(int i = 0; i<length; i++) {
 			loc[i+1] = 8*lct[i]; //gainc
-			lngain = getGainChangePointID(lvl[i]); //gainc
-			if(lngain<0) lev[i+1] = 1.0f/(float) Math.pow(2, -lngain);
-			else lev[i+1] = (float) Math.pow(2, lngain);
+			int lngain = getGainChangePointID(lvl[i]); //gainc
+			if(lngain<0)
+				lev[i+1] = 1.0f/(float) Math.pow(2, -lngain);
+			else
+				lev[i+1] = (float) Math.pow(2, lngain);
 		}
 
 		//set start point values
 		loc[0] = 0;
-		if(length==0) lev[0] = 1.0f;
-		else lev[0] = lev[1];
+		if(length==0)
+			lev[0] = 1.0f;
+		else
+			lev[0] = lev[1];
 		float secLevel = lev[0];
 
 		//set end point values
 		loc[length+1] = maxLocGain;
 		lev[length+1] = 1.0f;
 
-		int j;
-		for(i = 0; i<maxLocGain; i++) {
+		for(int i = 0; i<maxLocGain; i++) {
 			m[i] = 0;
-			for(j = 0; j<=length+1; j++) {
-				if(loc[j]<=i) m[i] = j;
+			for(int j = 0; j<=length+1; j++) {
+				if(loc[j]<=i)
+					m[i] = j;
 			}
 		}
 
-		for(i = 0; i<maxLocGain; i++) {
-			if((i>=loc[m[i]])&&(i<=loc[m[i]]+7)) fmd[i] = interpolateGain(lev[m[i]], lev[m[i]+1], i-loc[m[i]]);
-			else fmd[i] = lev[m[i]+1];
+		for(int i = 0; i<maxLocGain; i++) {
+			if((i>=loc[m[i]])&&(i<=loc[m[i]]+7))
+				fmd[i] = interpolateGain(lev[m[i]], lev[m[i]+1], i-loc[m[i]]);
+			else
+				fmd[i] = lev[m[i]+1];
 		}
 
 		return secLevel;
@@ -276,7 +276,8 @@ public class GainControl implements GCConstants {
 	 */
 	private int getGainChangePointID(int lngain) {
 		for(int i = 0; i<ID_GAIN; i++) {
-			if(lngain==LN_GAIN[i]) return i;
+			if(lngain==LN_GAIN[i])
+				return i;
 		}
 		return 0; //shouldn't happen
 	}

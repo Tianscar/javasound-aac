@@ -1,7 +1,8 @@
 package net.sourceforge.jaad.mp4.od;
 
+import net.sourceforge.jaad.mp4.MP4Input;
+
 import java.io.IOException;
-import net.sourceforge.jaad.mp4.MP4InputStream;
 
 /**
  * The <code>InitialObjectDescriptor</code> is a variation of the
@@ -18,7 +19,7 @@ public class InitialObjectDescriptor extends Descriptor {
 	private int odProfile, sceneProfile, audioProfile, visualProfile, graphicsProfile;
 
 	@Override
-	void decode(MP4InputStream in) throws IOException {
+	void decode(MP4Input in) throws IOException {
 		//10 bits objectDescriptorID, 1 bit url flag, 1 bit
 		//includeInlineProfiles flag, 4 bits reserved
 		final int x = (int) in.readBytes(2);
@@ -26,13 +27,14 @@ public class InitialObjectDescriptor extends Descriptor {
 		urlPresent = ((x>>5)&1)==1;
 		includeInlineProfiles = ((x>>4)&1)==1;
 
-		if(urlPresent) url = in.readString(size-2);
+		if(urlPresent)
+			url = in.readString(size-2);
 		else {
-			odProfile = in.read();
-			sceneProfile = in.read();
-			audioProfile = in.read();
-			visualProfile = in.read();
-			graphicsProfile = in.read();
+			odProfile = in.readByte();
+			sceneProfile = in.readByte();
+			audioProfile = in.readByte();
+			visualProfile = in.readByte();
+			graphicsProfile = in.readByte();
 		}
 
 		readChildren(in);

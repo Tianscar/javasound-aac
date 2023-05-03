@@ -135,16 +135,15 @@ class DCT {
 	private static void fft_dif(float[] Real, float[] Imag) {
 		float w_real, w_imag; // For faster access
 		float point1_real, point1_imag, point2_real, point2_imag; // For faster access
-		int j, i, i2, w_index; // Counters
 
 		// First 2 stages of 32 point FFT decimation in frequency
 		// 4*16*2=64*2=128 multiplications
 		// 6*16*2=96*2=192 additions
 		// Stage 1 of 32 point FFT decimation in frequency
-		for(i = 0; i<16; i++) {
+		for(int i = 0; i<16; i++) {
 			point1_real = Real[i];
 			point1_imag = Imag[i];
-			i2 = i+16;
+			int i2 = i+16;
 			point2_real = Real[i2];
 			point2_imag = Imag[i2];
 
@@ -164,14 +163,14 @@ class DCT {
 			Imag[i2] = ((point1_real*w_imag)+(point1_imag*w_real));
 		}
 		// Stage 2 of 32 point FFT decimation in frequency
-		for(j = 0, w_index = 0; j<8; j++, w_index += 2) {
+		for(int j = 0, w_index = 0; j<8; j++, w_index += 2) {
 			w_real = w_array_real[w_index];
 			w_imag = w_array_imag[w_index];
 
-			i = j;
+			int i = j;
 			point1_real = Real[i];
 			point1_imag = Imag[i];
-			i2 = i+8;
+			int i2 = i+8;
 			point2_real = Real[i2];
 			point2_imag = Imag[i2];
 
@@ -210,8 +209,8 @@ class DCT {
 		// Stage 3 of 32 point FFT decimation in frequency
 		// 2*4*2=16 multiplications
 		// 4*4*2+6*4*2=10*8=80 additions
-		for(i = 0; i<n; i += 8) {
-			i2 = i+4;
+		for(int i = 0; i<n; i += 8) {
+			int i2 = i+4;
 			point1_real = Real[i];
 			point1_imag = Imag[i];
 
@@ -228,8 +227,8 @@ class DCT {
 		}
 		w_real = w_array_real[4]; // = sqrt(2)/2
 		// w_imag = -w_real; // = w_array_imag[4]; // = -sqrt(2)/2
-		for(i = 1; i<n; i += 8) {
-			i2 = i+4;
+		for(int i = 1; i<n; i += 8) {
+			int i2 = i+4;
 			point1_real = Real[i];
 			point1_imag = Imag[i];
 
@@ -248,8 +247,8 @@ class DCT {
 			Real[i2] = (point1_real+point1_imag)*w_real;
 			Imag[i2] = (point1_imag-point1_real)*w_real;
 		}
-		for(i = 2; i<n; i += 8) {
-			i2 = i+4;
+		for(int i = 2; i<n; i += 8) {
+			int i2 = i+4;
 			point1_real = Real[i];
 			point1_imag = Imag[i];
 
@@ -266,8 +265,8 @@ class DCT {
 		}
 		w_real = w_array_real[12]; // = -sqrt(2)/2
 		// w_imag = w_real; // = w_array_imag[12]; // = -sqrt(2)/2
-		for(i = 3; i<n; i += 8) {
-			i2 = i+4;
+		for(int i = 3; i<n; i += 8) {
+			int i2 = i+4;
 			point1_real = Real[i];
 			point1_imag = Imag[i];
 
@@ -289,8 +288,8 @@ class DCT {
 
 		// Stage 4 of 32 point FFT decimation in frequency (no multiplications)
 		// 16*4=64 additions
-		for(i = 0; i<n; i += 4) {
-			i2 = i+2;
+		for(int i = 0; i<n; i += 4) {
+			int i2 = i+2;
 			point1_real = Real[i];
 			point1_imag = Imag[i];
 
@@ -305,8 +304,8 @@ class DCT {
 			Real[i2] = point1_real-point2_real;
 			Imag[i2] = point1_imag-point2_imag;
 		}
-		for(i = 1; i<n; i += 4) {
-			i2 = i+2;
+		for(int i = 1; i<n; i += 4) {
+			int i2 = i+2;
 			point1_real = Real[i];
 			point1_imag = Imag[i];
 
@@ -324,8 +323,8 @@ class DCT {
 
 		// Stage 5 of 32 point FFT decimation in frequency (no multiplications)
 		// 16*4=64 additions
-		for(i = 0; i<n; i += 2) {
-			i2 = i+1;
+		for(int i = 0; i<n; i += 2) {
+			int i2 = i+1;
 			point1_real = Real[i];
 			point1_imag = Imag[i];
 
@@ -347,12 +346,11 @@ class DCT {
 	/* size 64 only! */
 	public static void dct4_kernel(float[] in_real, float[] in_imag, float[] out_real, float[] out_imag) {
 		// Tables with bit reverse values for 5 bits, bit reverse of i at i-th position
-		int i, i_rev;
 
 		/* Step 2: modulate */
 		// 3*32=96 multiplications
 		// 3*32=96 additions
-		for(i = 0; i<32; i++) {
+		for(int i = 0; i<32; i++) {
 			float x_re, x_im, tmp;
 			x_re = in_real[i];
 			x_im = in_imag[i];
@@ -367,9 +365,9 @@ class DCT {
 		/* Step 4: modulate + bitreverse reordering */
 		// 3*31+2=95 multiplications
 		// 3*31+2=95 additions
-		for(i = 0; i<16; i++) {
+		for(int i = 0; i<16; i++) {
 			float x_re, x_im, tmp;
-			i_rev = bit_rev_tab[i];
+			int i_rev = bit_rev_tab[i];
 			x_re = in_real[i_rev];
 			x_im = in_imag[i_rev];
 
@@ -380,9 +378,9 @@ class DCT {
 		// i = 16, i_rev = 1 = rev(16);
 		out_imag[16] = (in_imag[1]-in_real[1])*dct4_64_tab[16+3*32];
 		out_real[16] = (in_real[1]+in_imag[1])*dct4_64_tab[16+3*32];
-		for(i = 17; i<32; i++) {
+		for(int i = 17; i<32; i++) {
 			float x_re, x_im, tmp;
-			i_rev = bit_rev_tab[i];
+			int i_rev = bit_rev_tab[i];
 			x_re = in_real[i_rev];
 			x_im = in_imag[i_rev];
 			tmp = (x_re+x_im)*dct4_64_tab[i+3*32];
