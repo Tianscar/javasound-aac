@@ -1,32 +1,100 @@
-apply plugin: 'java'
+plugins {
+    id 'java-library'
+    id 'signing'
+    id 'maven-publish'
+}
 
-group 'net.sourceforge.jaadec'
-version '0.8.6'
+ext {
+    libraryName = 'Java AAC Decoder'
+    libraryGroupName = 'com.tianscar.audio'
+    libraryVendorName = 'Tianscar'
 
-sourceCompatibility = 1.5
+    libraryVersionCode = 1
+    libraryVersionName = '1.0.0'
 
-jar {
-    baseName = project.name
-    manifest {
-        attributes 'Manifest-Version' : '1.0'
-        attributes 'Implementation-Version': version
-        attributes 'Main-Class': "net.sourceforge.jaad.Radio"
+    librarySourceCompatibility = JavaVersion.VERSION_1_8
+    libraryTargetCompatibility = JavaVersion.VERSION_1_8
+}
+
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+sourceCompatibility = librarySourceCompatibility
+targetCompatibility = libraryTargetCompatibility
+
+group = libraryGroupName
+version = libraryVersionName
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId = libraryGroupName
+            artifactId = rootProject.name
+            version = libraryVersionName
+            from components.java
+            pom {
+                name = libraryName
+                description = 'Java AAC Decoder'
+                url = 'https://github.com/Tianscar/jaac'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'Tianscar'
+                        name = 'Karstian Lee'
+                        email = 'tianscar@protonmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git@github.com/Tianscar/jaac.git'
+                    developerConnection = 'scm:git:git@github.com/Tianscar/jaac.git'
+                    url = 'https://github.com/Tianscar/jaac'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = "OSSRH"
+            if (project.version.toString().endsWith("-SNAPSHOT")) {
+                url = "https://s01.oss.sonatype.org/content/repositories/snapshots"
+            } else {
+                url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            }
+            credentials {
+                username = findProperty("ossrhUsername") ?: System.getenv("OSSRH_USERNAME")
+                password = findProperty("ossrhPassword") ?: System.getenv("OSSRH_PASSWORD")
+            }
+        }
     }
 }
 
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
+signing {
+    sign publishing.publications.mavenJava
 }
 
-artifacts {
-    archives sourcesJar
-}
-
-tasks.withType(Zip) {
-    task ->
-
-    task.doLast {
-        ant.checksum file: it.archivePath
+javadoc {
+    if(JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
     }
 }
