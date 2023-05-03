@@ -2,7 +2,7 @@ package net.sourceforge.jaad.aac.gain;
 
 import net.sourceforge.jaad.aac.syntax.BitStream;
 import net.sourceforge.jaad.aac.syntax.ICSInfo.WindowSequence;
-import net.sourceforge.jaad.aac.tools.Utils;
+import net.sourceforge.jaad.util.Utils;
 
 public class GainControl implements GCConstants {
 

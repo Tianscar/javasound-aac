@@ -1,6 +1,7 @@
 package net.sourceforge.jaad.mp4.od;
 
 import net.sourceforge.jaad.mp4.MP4Input;
+import net.sourceforge.jaad.util.Utils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -17,6 +18,9 @@ import java.util.logging.Logger;
  */
 public abstract class Descriptor {
 	static final Logger LOGGER = Logger.getLogger("jaad.mp4.od.Descriptor"); //for debugging
+	static {
+		if (!Utils.isDebug) LOGGER.setLevel(Level.WARNING);
+	}
 
 	public static final int TYPE_OBJECT_DESCRIPTOR = 1;
 	public static final int TYPE_INITIAL_OBJECT_DESCRIPTOR = 2;

@@ -3,7 +3,9 @@ package net.sourceforge.jaad.mp4.api;
 import net.sourceforge.jaad.mp4.api.codec.*;
 import net.sourceforge.jaad.mp4.boxes.BoxTypes;
 import net.sourceforge.jaad.mp4.boxes.impl.sampleentries.codec.*;
+import net.sourceforge.jaad.util.Utils;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -24,6 +26,9 @@ import java.util.logging.Logger;
 public abstract class DecoderInfo {
 
 	static final Logger LOGGER = Logger.getLogger("jaad.mp4.Api"); //for debugging
+	static {
+		if (!Utils.isDebug) LOGGER.setLevel(Level.WARNING);
+	}
 
 	static DecoderInfo parse(CodecSpecificBox css) {
 		final long l = css.getType();

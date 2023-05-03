@@ -6,6 +6,7 @@ import net.sourceforge.jaad.aac.filterbank.FilterBank;
 import net.sourceforge.jaad.aac.syntax.BitStream;
 import net.sourceforge.jaad.aac.syntax.ICSInfo;
 import net.sourceforge.jaad.aac.syntax.ICStream;
+import net.sourceforge.jaad.util.Utils;
 
 import java.util.logging.Logger;
 

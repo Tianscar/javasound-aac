@@ -1,5 +1,7 @@
 package net.sourceforge.jaad.aac;
 
+import net.sourceforge.jaad.util.Utils;
+
 import java.util.List;
 
 import static net.sourceforge.jaad.aac.Speaker.*;
@@ -26,7 +28,7 @@ public enum ChannelConfiguration {
 
 	static final ChannelConfiguration CHANNEL_CONFIG_UNSUPPORTED = null;
 
-	static final List<ChannelConfiguration> CONFIGURATIONS = List.of(values());
+	static final List<ChannelConfiguration> CONFIGURATIONS = Utils.listOf(values());
 
 	public static ChannelConfiguration forInt(int i) {
 		// 7 -> 8
@@ -50,19 +52,19 @@ public enum ChannelConfiguration {
 
 	ChannelConfiguration(String descr) {
 		this.descr = descr;
-		this.speakers = List.of();
+		this.speakers = Utils.listOf();
 	}
 
 	ChannelConfiguration(String descr, Speaker ... speakes) {
 		this.descr = descr;
-		this.speakers = List.of(speakes);
+		this.speakers = Utils.listOf(speakes);
 		if(speakers.size()!=ordinal())
 			throw new IllegalArgumentException("invalid speaker count");
 	}
 
 	ChannelConfiguration(String descr, Speaker speaker) {
 		this.descr = descr;
-		this.speakers = speaker==null ? null : List.of(speaker);
+		this.speakers = speaker==null ? null : Utils.listOf(speaker);
 	}
 
 	/**

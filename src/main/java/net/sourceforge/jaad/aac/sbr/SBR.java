@@ -4,12 +4,17 @@ import net.sourceforge.jaad.aac.AACException;
 import net.sourceforge.jaad.aac.DecoderConfig;
 import net.sourceforge.jaad.aac.SampleFrequency;
 import net.sourceforge.jaad.aac.syntax.BitStream;
+import net.sourceforge.jaad.util.Utils;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 abstract public class SBR {
 
 	static final Logger LOGGER = Logger.getLogger("jaad.aac.sbr.SBR"); //for debugging
+	static {
+		if (!Utils.isDebug) LOGGER.setLevel(Level.FINEST);
+	}
 
 	static final int MAX_NTSR = 32; //max number_time_slots * rate, ok for DRM and not DRM mode
 	static final int MAX_M = 49; //maximum value for M

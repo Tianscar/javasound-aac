@@ -4,6 +4,7 @@ import net.sourceforge.jaad.aac.syntax.BitStream;
 import net.sourceforge.jaad.aac.syntax.PCE;
 import net.sourceforge.jaad.aac.syntax.SyntacticElements;
 import net.sourceforge.jaad.aac.transport.ADIFHeader;
+import net.sourceforge.jaad.util.Utils;
 
 import javax.sound.sampled.AudioFormat;
 import java.util.List;
@@ -17,6 +18,9 @@ import java.util.logging.Logger;
 public class Decoder {
 
 	static final Logger LOGGER = Logger.getLogger("jaad.aac.Decoder"); //for debugging
+	static {
+		if (!Utils.isDebug) LOGGER.setLevel(Level.INFO);
+	}
 
 	private final DecoderConfig config;
 	private final SyntacticElements syntacticElements;
@@ -69,9 +73,9 @@ public class Decoder {
 
 		syntacticElements = new SyntacticElements(config);
 
-		LOGGER.log(Level.INFO, "profile: {0}", config.getProfile());
-		LOGGER.log(Level.INFO, "sf: {0}", config.getSampleFrequency().getFrequency());
-		LOGGER.log(Level.INFO, "channels: {0}", config.getChannelConfiguration().getDescription());
+		LOGGER.log(Level.FINE, "profile: {0}", config.getProfile());
+		LOGGER.log(Level.FINE, "sf: {0}", config.getSampleFrequency().getFrequency());
+		LOGGER.log(Level.FINE, "channels: {0}", config.getChannelConfiguration().getDescription());
 	}
 
 	public DecoderConfig getConfig() {
