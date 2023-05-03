@@ -2,16 +2,24 @@ package net.sourceforge.jaad;
 
 import net.sourceforge.jaad.aac.AACException;
 import net.sourceforge.jaad.aac.Decoder;
-import net.sourceforge.jaad.aac.SampleBuffer;
+import net.sourceforge.jaad.aac.DecoderConfig;
 import net.sourceforge.jaad.adts.ADTSDemultiplexer;
 import net.sourceforge.jaad.mp4.MP4Container;
-import net.sourceforge.jaad.mp4.api.*;
-import java.io.FileInputStream;
-import java.io.RandomAccessFile;
-import java.util.List;
+import net.sourceforge.jaad.mp4.MP4Input;
+import net.sourceforge.jaad.mp4.api.AudioTrack;
+import net.sourceforge.jaad.mp4.api.Frame;
+import net.sourceforge.jaad.mp4.api.Movie;
+import net.sourceforge.jaad.mp4.api.Track;
+
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.SourceDataLine;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.RandomAccessFile;
+import java.net.URL;
+import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Command line example, that can decode an AAC file and play it.
@@ -19,16 +27,22 @@ import javax.sound.sampled.SourceDataLine;
  */
 public class Play {
 
+	static final Logger LOGGER = Logger.getLogger("Play"); //for debugging
+
 	private static final String USAGE = "usage:\nnet.sourceforge.jaad.Play [-mp4] <infile>\n\n\t-mp4\tinput file is in MP4 container format";
 
 	public static void main(String[] args) {
 		try {
-			if(args.length<1) printUsage();
+			if(args.length<1)
+				printUsage();
 			if(args[0].equals("-mp4")) {
-				if(args.length<2) printUsage();
-				else decodeMP4(args[1]);
+				if(args.length<2)
+					printUsage();
+				else
+					decodeMP4(args[1]);
 			}
-			else decodeAAC(args[0]);
+			else
+				decodeAAC(args[0]);
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -42,75 +56,89 @@ public class Play {
 	}
 
 	private static void decodeMP4(String in) throws Exception {
-		SourceDataLine line = null;
-		byte[] b;
-		try {
-			//create container
-			final MP4Container cont = new MP4Container(new RandomAccessFile(in, "r"));
-			final Movie movie = cont.getMovie();
-			//find AAC track
-			final List<Track> tracks = movie.getTracks(AudioTrack.AudioCodec.AAC);
-			if(tracks.isEmpty()) throw new Exception("movie does not contain any AAC track");
-			final AudioTrack track = (AudioTrack) tracks.get(0);
+		if(in.startsWith("http:"))
+			decodeMP4(new URL(in).openStream());
+		else
+			//decodeMP4(new FileInputStream(in));
+			decodeMP4(new RandomAccessFile(in, "r"));
+	}
 
-			//create audio format
-			final AudioFormat aufmt = new AudioFormat(track.getSampleRate(), track.getSampleSize(), track.getChannelCount(), true, true);
-			line = AudioSystem.getSourceDataLine(aufmt);
+	private static void decodeMP4(InputStream in) throws Exception {
+			decodeMP4(MP4Input.open(in));
+	}
+
+	private static void decodeMP4(RandomAccessFile in) throws Exception {
+			decodeMP4(MP4Input.open(in));
+	}
+
+	private static void decodeMP4(MP4Input in) throws Exception {
+
+		//create container
+		final MP4Container cont = new MP4Container(in);
+		final Movie movie = cont.getMovie();
+		//find AAC track
+		final List<Track> tracks = movie.getTracks(AudioTrack.AudioCodec.AAC);
+		if(tracks.isEmpty())
+			throw new Exception("movie does not contain any AAC track");
+		final AudioTrack track = (AudioTrack) tracks.get(0);
+
+		//create AAC decoder
+		Decoder dec = Decoder.create(track.getDecoderSpecificInfo().getData());
+
+		//create audio format
+		DecoderConfig conf = dec.getConfig();
+		AudioFormat aufmt = new AudioFormat(conf.getOutputFrequency().getFrequency(), 16, conf.getChannelCount(), true, true);
+
+		try(SourceDataLine line =  AudioSystem.getSourceDataLine(aufmt)) {
 			line.open();
 			line.start();
 
-			//create AAC decoder
-			final Decoder dec = new Decoder(track.getDecoderSpecificInfo());
 
 			//decode
-			Frame frame;
-			final SampleBuffer buf = new SampleBuffer();
+			final SampleBuffer buf = new SampleBuffer(aufmt);
 			while(track.hasMoreFrames()) {
-				frame = track.readNextFrame();
+				Frame frame = track.readNextFrame();
+
 				try {
 					dec.decodeFrame(frame.getData(), buf);
-					b = buf.getData();
+					byte[] b = buf.getData();
 					line.write(b, 0, b.length);
 				}
 				catch(AACException e) {
 					e.printStackTrace();
 					//since the frames are separate, decoding can continue if one fails
 				}
+
+				//if(dec.frames>100)
+				//	break;
 			}
-		}
-		finally {
-			if(line!=null) {
-				line.stop();
-				line.close();
-			}
+			line.drain();
 		}
 	}
 
-	private static void decodeAAC(String in) throws Exception {
-		SourceDataLine line = null;
-		byte[] b;
-		try {
-			final ADTSDemultiplexer adts = new ADTSDemultiplexer(new FileInputStream(in));
-			final Decoder dec = new Decoder(adts.getDecoderSpecificInfo());
-			final SampleBuffer buf = new SampleBuffer();
-			while(true) {
-				b = adts.readNextFrame();
-				dec.decodeFrame(b, buf);
+    private static void decodeAAC(String in) throws Exception {
+		if(in.startsWith("http:"))
+			decodeAAC(new URL(in).openStream());
+		else
+			decodeAAC(new FileInputStream(in));
+	}
 
-				if(line==null) {
-					final AudioFormat aufmt = new AudioFormat(buf.getSampleRate(), buf.getBitsPerSample(), buf.getChannels(), true, true);
-					line = AudioSystem.getSourceDataLine(aufmt);
-					line.open();
-					line.start();
-				}
+	private static void decodeAAC(InputStream in) throws Exception {
+
+		final ADTSDemultiplexer adts = new ADTSDemultiplexer(in);
+		final Decoder dec = Decoder.create(adts.getDecoderInfo());
+		AudioFormat aufmt = dec.getAudioFormat();
+		final SampleBuffer buf = new SampleBuffer(aufmt);
+
+		try(SourceDataLine line = AudioSystem.getSourceDataLine(aufmt)) {
+			line.open();
+			line.start();
+
+			while(true) {
+				byte[] b = adts.readNextFrame();
+				dec.decodeFrame(b, buf);
 				b = buf.getData();
 				line.write(b, 0, b.length);
-			}
-		}
-		finally {
-			if(line!=null) {
-				line.stop();
-				line.close();
 			}
 		}
 	}

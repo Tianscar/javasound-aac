@@ -1,8 +1,9 @@
 package net.sourceforge.jaad.mp4.boxes.impl;
 
-import java.io.IOException;
-import net.sourceforge.jaad.mp4.MP4InputStream;
+import net.sourceforge.jaad.mp4.MP4Input;
 import net.sourceforge.jaad.mp4.boxes.FullBox;
+
+import java.io.IOException;
 
 /**
  * This box within a Media Box declares the process by which the media-data in
@@ -43,7 +44,7 @@ public class HandlerBox extends FullBox {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 		super.decode(in);
 
 		in.skipBytes(4); //pre-defined: 0
@@ -54,7 +55,7 @@ public class HandlerBox extends FullBox {
 		in.readBytes(4); //reserved
 		in.readBytes(4); //reserved
 
-		handlerName = in.readUTFString((int) getLeft(in), MP4InputStream.UTF8);
+		handlerName = in.readUTFString((int) getLeft(in), MP4Input.UTF8);
 	}
 
 	/**

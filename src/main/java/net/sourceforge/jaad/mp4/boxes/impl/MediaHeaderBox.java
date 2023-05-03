@@ -1,9 +1,10 @@
 package net.sourceforge.jaad.mp4.boxes.impl;
 
+import net.sourceforge.jaad.mp4.MP4Input;
 import net.sourceforge.jaad.mp4.boxes.FullBox;
-import net.sourceforge.jaad.mp4.MP4InputStream;
-import java.io.IOException;
 import net.sourceforge.jaad.mp4.boxes.Utils;
+
+import java.io.IOException;
 
 /**
  * The media header declares overall information that is media-independent, and relevant to characteristics of
@@ -19,7 +20,7 @@ public class MediaHeaderBox extends FullBox {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 		super.decode(in);
 		
 		final int len = (version==1) ? 8 : 4;

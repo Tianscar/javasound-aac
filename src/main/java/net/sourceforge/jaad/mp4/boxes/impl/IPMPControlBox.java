@@ -1,9 +1,10 @@
 package net.sourceforge.jaad.mp4.boxes.impl;
 
-import java.io.IOException;
-import net.sourceforge.jaad.mp4.MP4InputStream;
+import net.sourceforge.jaad.mp4.MP4Input;
 import net.sourceforge.jaad.mp4.boxes.FullBox;
 import net.sourceforge.jaad.mp4.od.Descriptor;
+
+import java.io.IOException;
 
 /**
  * The IPMP Control Box may contain IPMP descriptors which may be referenced by
@@ -31,12 +32,12 @@ public class IPMPControlBox extends FullBox {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 		super.decode(in);
 
 		toolList = /*(IPMPToolListDescriptor)*/ Descriptor.createDescriptor(in);
 
-		final int count = in.read();
+		final int count = in.readByte();
 
 		ipmpDescriptors = new Descriptor[count];
 		for(int i = 0; i<count; i++) {

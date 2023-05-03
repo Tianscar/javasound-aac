@@ -1,7 +1,8 @@
 package net.sourceforge.jaad.mp4.boxes.impl.sampleentries.codec;
 
+import net.sourceforge.jaad.mp4.MP4Input;
+
 import java.io.IOException;
-import net.sourceforge.jaad.mp4.MP4InputStream;
 
 //defined in ISO 14496-15 as 'AVC Configuration Record'
 public class AVCSpecificBox extends CodecSpecificBox {
@@ -15,17 +16,17 @@ public class AVCSpecificBox extends CodecSpecificBox {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
-		configurationVersion = in.read();
-		profile = in.read();
-		profileCompatibility = (byte) in.read();
-		level = in.read();
+	public void decode(MP4Input in) throws IOException {
+		configurationVersion = in.readByte();
+		profile = in.readByte();
+		profileCompatibility = (byte) in.readByte();
+		level = in.readByte();
 		//6 bits reserved, 2 bits 'length size minus one'
-		lengthSize = (in.read()&3)+1;
+		lengthSize = (in.readByte()&3)+1;
 
 		int len;
 		//3 bits reserved, 5 bits number of sequence parameter sets
-		final int sequenceParameterSets = in.read()&31;
+		final int sequenceParameterSets = in.readByte()&31;
 
 		sequenceParameterSetNALUnit = new byte[sequenceParameterSets][];
 		for(int i = 0; i<sequenceParameterSets; i++) {
@@ -34,7 +35,7 @@ public class AVCSpecificBox extends CodecSpecificBox {
 			in.readBytes(sequenceParameterSetNALUnit[i]);
 		}
 
-		final int pictureParameterSets = in.read();
+		final int pictureParameterSets = in.readByte();
 
 		pictureParameterSetNALUnit = new byte[pictureParameterSets][];
 		for(int i = 0; i<pictureParameterSets; i++) {

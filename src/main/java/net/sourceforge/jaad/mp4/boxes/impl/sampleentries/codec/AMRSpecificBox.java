@@ -1,7 +1,8 @@
 package net.sourceforge.jaad.mp4.boxes.impl.sampleentries.codec;
 
+import net.sourceforge.jaad.mp4.MP4Input;
+
 import java.io.IOException;
-import net.sourceforge.jaad.mp4.MP4InputStream;
 
 public class AMRSpecificBox extends CodecSpecificBox {
 
@@ -12,12 +13,12 @@ public class AMRSpecificBox extends CodecSpecificBox {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 		decodeCommon(in);
 
 		modeSet = (int) in.readBytes(2);
-		modeChangePeriod = in.read();
-		framesPerSample = in.read();
+		modeChangePeriod = in.readByte();
+		framesPerSample = in.readByte();
 	}
 
 	public int getModeSet() {

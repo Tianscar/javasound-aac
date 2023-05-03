@@ -2,7 +2,6 @@ package net.sourceforge.jaad.aac.tools;
 
 import net.sourceforge.jaad.aac.huffman.HCB;
 import net.sourceforge.jaad.aac.syntax.CPE;
-import net.sourceforge.jaad.aac.syntax.Constants;
 import net.sourceforge.jaad.aac.syntax.ICSInfo;
 import net.sourceforge.jaad.aac.syntax.ICStream;
 
@@ -10,7 +9,7 @@ import net.sourceforge.jaad.aac.syntax.ICStream;
  * Intensity stereo
  * @author in-somnia
  */
-public final class IS implements Constants, ISScaleTable, HCB {
+public final class IS implements ISScaleTable, HCB {
 
 	private IS() {
 	}
@@ -25,28 +24,26 @@ public final class IS implements Constants, ISScaleTable, HCB {
 		final int[] sectEnd = ics.getSectEnd();
 		final float[] scaleFactors = ics.getScaleFactors();
 
-		int w, i, j, c, end, off;
 		int idx = 0, groupOff = 0;
-		float scale;
 		for(int g = 0; g<windowGroups; g++) {
-			for(i = 0; i<maxSFB;) {
+			for(int i = 0; i<maxSFB;) {
 				if(sfbCB[idx]==INTENSITY_HCB||sfbCB[idx]==INTENSITY_HCB2) {
-					end = sectEnd[idx];
+					int end = sectEnd[idx];
 					for(; i<end; i++, idx++) {
-						c = sfbCB[idx]==INTENSITY_HCB ? 1 : -1;
+						int c = sfbCB[idx]==INTENSITY_HCB ? 1 : -1;
 						if(cpe.isMSMaskPresent())
 							c *= cpe.isMSUsed(idx) ? -1 : 1;
-						scale = c*scaleFactors[idx];
-						for(w = 0; w<info.getWindowGroupLength(g); w++) {
-							off = groupOff+w*128+offsets[i];
-							for(j = 0; j<offsets[i+1]-offsets[i]; j++) {
+						float scale = c*scaleFactors[idx];
+						for(int w = 0; w<info.getWindowGroupLength(g); w++) {
+							int off = groupOff+w*128+offsets[i];
+							for(int j = 0; j<offsets[i+1]-offsets[i]; j++) {
 								specR[off+j] = specL[off+j]*scale;
 							}
 						}
 					}
 				}
 				else {
-					end = sectEnd[idx];
+					int end = sectEnd[idx];
 					idx += end-i;
 					i = end;
 				}

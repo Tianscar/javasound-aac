@@ -1,9 +1,10 @@
 package net.sourceforge.jaad.mp4.boxes.impl;
 
-import net.sourceforge.jaad.mp4.MP4InputStream;
-import java.io.IOException;
+import net.sourceforge.jaad.mp4.MP4Input;
 import net.sourceforge.jaad.mp4.boxes.FullBox;
 import net.sourceforge.jaad.mp4.boxes.Utils;
+
+import java.io.IOException;
 
 /**
  * This box specifies the characteristics of a single track. Exactly one Track
@@ -35,7 +36,7 @@ public class TrackHeaderBox extends FullBox {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 		super.decode(in);
 
 		enabled = (flags&1)==1;
@@ -58,8 +59,10 @@ public class TrackHeaderBox extends FullBox {
 		in.skipBytes(2); //reserved
 
 		for(int i = 0; i<9; i++) {
-			if(i<6) matrix[i] = in.readFixedPoint(16, 16);
-			else matrix[i] = in.readFixedPoint(2, 30);
+			if(i<6)
+				matrix[i] = in.readFixedPoint(16, 16);
+			else
+				matrix[i] = in.readFixedPoint(2, 30);
 		}
 
 		width = in.readFixedPoint(16, 16);

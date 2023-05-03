@@ -1,8 +1,9 @@
 package net.sourceforge.jaad.mp4.boxes.impl;
 
-import java.io.IOException;
-import net.sourceforge.jaad.mp4.MP4InputStream;
+import net.sourceforge.jaad.mp4.MP4Input;
 import net.sourceforge.jaad.mp4.boxes.FullBox;
+
+import java.io.IOException;
 
 public class AppleLosslessBox extends FullBox {
 
@@ -14,16 +15,16 @@ public class AppleLosslessBox extends FullBox {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 		super.decode(in);
 
 		maxSamplePerFrame = in.readBytes(4);
 		in.skipBytes(1); //?
-		sampleSize = in.read();
-		historyMult = in.read();
-		initialHistory = in.read();
-		kModifier = in.read();
-		channels = in.read();
+		sampleSize = in.readByte();
+		historyMult = in.readByte();
+		initialHistory = in.readByte();
+		kModifier = in.readByte();
+		channels = in.readByte();
 		in.skipBytes(2); //?
 		maxCodedFrameSize = in.readBytes(4);
 		bitRate = in.readBytes(4);

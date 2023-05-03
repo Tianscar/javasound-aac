@@ -19,9 +19,12 @@ abstract class AsynchronousAudioInputStream extends AudioInputStream implements 
 	@Override
 	public int read() throws IOException {
 		int i = -1;
-		if(singleByte==null) singleByte = new byte[1];
-		if(buffer.read(singleByte, 0, 1)==-1) i = -1;
-		else i = singleByte[0]&0xFF;
+		if(singleByte==null)
+			singleByte = new byte[1];
+		if(buffer.read(singleByte, 0, 1)==-1)
+			i = -1;
+		else
+			i = singleByte[0]&0xFF;
 		return i;
 	}
 

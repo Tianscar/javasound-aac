@@ -12,8 +12,8 @@ ext {
     libraryVersionCode = 1
     libraryVersionName = '1.0.0'
 
-    librarySourceCompatibility = JavaVersion.VERSION_1_8
-    libraryTargetCompatibility = JavaVersion.VERSION_1_8
+    librarySourceCompatibility = JavaVersion.VERSION_11
+    libraryTargetCompatibility = JavaVersion.VERSION_11
 }
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'

@@ -28,10 +28,12 @@ public abstract class Protection {
 		if(sinf.hasChild(BoxTypes.SCHEME_TYPE_BOX)) {
 			final SchemeTypeBox schm = (SchemeTypeBox) sinf.getChild(BoxTypes.SCHEME_TYPE_BOX);
 			final long l = schm.getSchemeType();
-			if(l==Scheme.ITUNES_FAIR_PLAY.type) p = new ITunesProtection(sinf);
+			if(l==Scheme.ITUNES_FAIR_PLAY.type)
+				p = new ITunesProtection(sinf);
 		}
 
-		if(p==null) p = new UnknownProtection(sinf);
+		if(p==null)
+			p = new UnknownProtection(sinf);
 		return p;
 	}
 	private final Codec originalFormat;
@@ -41,9 +43,12 @@ public abstract class Protection {
 		final long type = ((OriginalFormatBox) sinf.getChild(BoxTypes.ORIGINAL_FORMAT_BOX)).getOriginalFormat();
 		Codec c;
 		//TODO: currently it tests for audio and video codec, can do this any other way?
-		if(!(c = AudioTrack.AudioCodec.forType(type)).equals(AudioTrack.AudioCodec.UNKNOWN_AUDIO_CODEC)) originalFormat = c;
-		else if(!(c = VideoTrack.VideoCodec.forType(type)).equals(VideoTrack.VideoCodec.UNKNOWN_VIDEO_CODEC)) originalFormat = c;
-		else originalFormat = null;
+		if(!(c = AudioTrack.AudioCodec.forType(type)).equals(AudioTrack.AudioCodec.UNKNOWN_AUDIO_CODEC))
+			originalFormat = c;
+		else if(!(c = VideoTrack.VideoCodec.forType(type)).equals(VideoTrack.VideoCodec.UNKNOWN_VIDEO_CODEC))
+			originalFormat = c;
+		else
+			originalFormat = null;
 	}
 
 	Codec getOriginalFormat() {

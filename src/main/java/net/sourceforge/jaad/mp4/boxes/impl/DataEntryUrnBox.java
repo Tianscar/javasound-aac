@@ -1,8 +1,9 @@
 package net.sourceforge.jaad.mp4.boxes.impl;
 
-import java.io.IOException;
-import net.sourceforge.jaad.mp4.MP4InputStream;
+import net.sourceforge.jaad.mp4.MP4Input;
 import net.sourceforge.jaad.mp4.boxes.FullBox;
+
+import java.io.IOException;
 
 public class DataEntryUrnBox extends FullBox {
 
@@ -14,13 +15,14 @@ public class DataEntryUrnBox extends FullBox {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 		super.decode(in);
 
 		inFile = (flags&1)==1;
 		if(!inFile) {
-			referenceName = in.readUTFString((int) getLeft(in), MP4InputStream.UTF8);
-			if(getLeft(in)>0) location = in.readUTFString((int) getLeft(in), MP4InputStream.UTF8);
+			referenceName = in.readUTFString((int) getLeft(in), MP4Input.UTF8);
+			if(getLeft(in)>0)
+				location = in.readUTFString((int) getLeft(in), MP4Input.UTF8);
 		}
 	}
 

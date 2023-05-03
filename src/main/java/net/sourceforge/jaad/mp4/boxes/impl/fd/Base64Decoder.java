@@ -53,8 +53,10 @@ class Base64Decoder {
 				for(i = 0; (i+4)<72; i += 4) {
 					decodeAtom(ps, out, 4);
 				}
-				if((i+4)==72) decodeAtom(ps, out, 4);
-				else decodeAtom(ps, out, 72-i);
+				if((i+4)==72)
+					decodeAtom(ps, out, 4);
+				else
+					decodeAtom(ps, out, 72-i);
 			}
 		}
 		catch(IOException e) {
@@ -63,12 +65,14 @@ class Base64Decoder {
 	}
 
 	private static void decodeAtom(InputStream in, OutputStream out, int rem) throws IOException {
-		if(rem<2) throw new IOException();
+		if(rem<2)
+			throw new IOException();
 
 		int i;
 		do {
 			i = in.read();
-			if(i==-1) throw new IOException();
+			if(i==-1)
+				throw new IOException();
 		}
 		while(i=='\n'||i=='\r');
 
@@ -76,10 +80,13 @@ class Base64Decoder {
 		buf[0] = (byte) i;
 
 		i = readFully(in, buf, 1, rem-1);
-		if(i==-1) throw new IOException();
+		if(i==-1)
+			throw new IOException();
 
-		if(rem>3&&buf[3]=='=') rem = 3;
-		if(rem>2&&buf[2]=='=') rem = 2;
+		if(rem>3&&buf[3]=='=')
+			rem = 3;
+		if(rem>2&&buf[2]=='=')
+			rem = 2;
 
 		byte a = -1, b = -1, c = -1, d = -1;
 		switch(rem) {
@@ -113,7 +120,8 @@ class Base64Decoder {
 	private static int readFully(InputStream in, byte[] b, int off, int len) throws IOException {
 		for(int i = 0; i<len; i++) {
 			int q = in.read();
-			if(q==-1) return ((i==0) ? -1 : i);
+			if(q==-1)
+				return ((i==0) ? -1 : i);
 			b[i+off] = (byte) q;
 		}
 		return len;

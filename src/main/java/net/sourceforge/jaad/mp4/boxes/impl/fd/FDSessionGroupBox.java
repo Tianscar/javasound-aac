@@ -1,8 +1,9 @@
 package net.sourceforge.jaad.mp4.boxes.impl.fd;
 
-import java.io.IOException;
-import net.sourceforge.jaad.mp4.MP4InputStream;
+import net.sourceforge.jaad.mp4.MP4Input;
 import net.sourceforge.jaad.mp4.boxes.FullBox;
+
+import java.io.IOException;
 
 /**
  * The FD session group box is optional, although it is mandatory for files
@@ -30,24 +31,23 @@ public class FDSessionGroupBox extends FullBox {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 		super.decode(in);
 
 		final int sessionGroups = (int) in.readBytes(2);
 		groupIDs = new long[sessionGroups][];
 		hintTrackIDs = new long[sessionGroups][];
 
-		int j, entryCount, channelsInSessionGroup;
 		for(int i = 0; i<sessionGroups; i++) {
-			entryCount = in.read();
+			int entryCount = in.readByte();
 			groupIDs[i] = new long[entryCount];
-			for(j = 0; j<entryCount; j++) {
+			for(int j = 0; j<entryCount; j++) {
 				groupIDs[i][j] = in.readBytes(4);
 			}
 
-			channelsInSessionGroup = (int) in.readBytes(2);
+			int channelsInSessionGroup = (int) in.readBytes(2);
 			hintTrackIDs[i] = new long[channelsInSessionGroup];
-			for(j = 0; j<channelsInSessionGroup; j++) {
+			for(int j = 0; j<channelsInSessionGroup; j++) {
 				hintTrackIDs[i][j] = in.readBytes(4);
 			}
 		}

@@ -86,8 +86,7 @@ class FFT {
 
 		//bit-reversal
 		final float[][] rev = new float[n][2];
-		int i, ii = 0;
-		for(i = 0; i<n; i++) {
+		for(int i = 0, ii=0; i<n; i++) {
 			rev[i][0] = in[ii][0];
 			rev[i][1] = in[ii][1];
 			int k = n>>1;
@@ -97,7 +96,7 @@ class FFT {
 			}
 			ii += k;
 		}
-		for(i = 0; i<n; i++) {
+		for(int i = 0; i<n; i++) {
 			in[i][0] = rev[i][0];
 			in[i][1] = rev[i][1];
 		}
@@ -105,15 +104,13 @@ class FFT {
 		//calculation
 		int blocks = n/2;
 		int size = 2;
-		int j, k, l, k0, k1, size2;
 		float[] a = new float[2];
-		for(i = 0; i<ln; i++) {
-			size2 = size/2;
-			k0 = 0;
-			k1 = size2;
-			for(j = 0; j<blocks; ++j) {
-				l = 0;
-				for(k = 0; k<size2; ++k) {
+		for(int i = 0; i<ln; i++) {
+			int size2 = size/2;
+			int k0 = 0;
+			int k1 = size2;
+			for(int j = 0; j<blocks; ++j) {
+				for(int k = 0, l=0; k<size2; ++k) {
 					a[0] = in[k1][0]*table[l][0]-in[k1][1]*table[l][1];
 					a[1] = in[k1][0]*table[l][1]+in[k1][1]*table[l][0];
 					in[k1][0] = in[k0][0]-a[0];

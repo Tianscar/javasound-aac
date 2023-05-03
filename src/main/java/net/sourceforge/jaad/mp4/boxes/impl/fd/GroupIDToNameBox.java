@@ -1,10 +1,11 @@
 package net.sourceforge.jaad.mp4.boxes.impl.fd;
 
+import net.sourceforge.jaad.mp4.MP4Input;
+import net.sourceforge.jaad.mp4.boxes.FullBox;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import net.sourceforge.jaad.mp4.MP4InputStream;
-import net.sourceforge.jaad.mp4.boxes.FullBox;
 
 public class GroupIDToNameBox extends FullBox {
 
@@ -16,7 +17,7 @@ public class GroupIDToNameBox extends FullBox {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 		super.decode(in);
 
 		final int entryCount = (int) in.readBytes(2);
@@ -24,7 +25,7 @@ public class GroupIDToNameBox extends FullBox {
 		String name;
 		for(int i = 0; i<entryCount; i++) {
 			id = in.readBytes(4);
-			name = in.readUTFString((int) getLeft(in), MP4InputStream.UTF8);
+			name = in.readUTFString((int) getLeft(in), MP4Input.UTF8);
 			map.put(id, name);
 		}
 	}

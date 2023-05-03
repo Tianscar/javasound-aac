@@ -1,8 +1,9 @@
 package net.sourceforge.jaad.mp4.boxes.impl;
 
-import java.io.IOException;
-import net.sourceforge.jaad.mp4.MP4InputStream;
+import net.sourceforge.jaad.mp4.MP4Input;
 import net.sourceforge.jaad.mp4.boxes.BoxImpl;
+
+import java.io.IOException;
 
 /**
  * This class is used for all boxes, that are known but don't contain necessary 
@@ -17,7 +18,7 @@ public class FreeSpaceBox extends BoxImpl {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 		//no need to read, box will be skipped
 	}
 }

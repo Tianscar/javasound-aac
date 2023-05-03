@@ -4,7 +4,6 @@ import java.awt.Image;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import net.sourceforge.jaad.mp4.boxes.impl.meta.ITunesMetadataBox.DataType;
 
@@ -72,11 +71,12 @@ public class Artwork {
 	 */
 	public Image getImage() throws IOException {
 		try {
-			if(image==null) image = ImageIO.read(new ByteArrayInputStream(data));
+			if(image==null)
+				image = ImageIO.read(new ByteArrayInputStream(data));
 			return image;
 		}
 		catch(IOException e) {
-			Logger.getLogger("MP4 API").log(Level.SEVERE, "Artwork.getImage failed: {0}", e.toString());
+			DecoderInfo.LOGGER.log(Level.SEVERE, "Artwork.getImage failed: {0}", e.toString());
 			throw e;
 		}
 	}

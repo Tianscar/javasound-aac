@@ -8,9 +8,8 @@ class MDCT implements MDCTTables {
 	private final float[][] sincos;
 	private final FFT fft;
 	private final float[][] buf;
-	private final float[] tmp;
 
-	MDCT(int length) throws AACException {
+	MDCT(int length) {
 		N = length;
 		N2 = length>>1;
 		N4 = length>>2;
@@ -32,14 +31,12 @@ class MDCT implements MDCTTables {
 		}
 		fft = new FFT(N4);
 		buf = new float[N4][2];
-		tmp = new float[2];
 	}
 
 	void process(float[] in, int inOff, float[] out, int outOff) {
-		int k;
 
 		//pre-IFFT complex multiplication
-		for(k = 0; k<N4; k++) {
+		for(int k = 0; k<N4; k++) {
 			buf[k][1] = (in[inOff+2*k]*sincos[k][0])+(in[inOff+N2-1-2*k]*sincos[k][1]);
 			buf[k][0] = (in[inOff+N2-1-2*k]*sincos[k][0])-(in[inOff+2*k]*sincos[k][1]);
 		}
@@ -48,15 +45,15 @@ class MDCT implements MDCTTables {
 		fft.process(buf, false);
 
 		//post-IFFT complex multiplication
-		for(k = 0; k<N4; k++) {
-			tmp[0] = buf[k][0];
-			tmp[1] = buf[k][1];
-			buf[k][1] = (tmp[1]*sincos[k][0])+(tmp[0]*sincos[k][1]);
-			buf[k][0] = (tmp[0]*sincos[k][0])-(tmp[1]*sincos[k][1]);
+		for(int k = 0; k<N4; k++) {
+			float t0 = buf[k][0];
+			float t1 = buf[k][1];
+			buf[k][1] = (t1*sincos[k][0])+(t0*sincos[k][1]);
+			buf[k][0] = (t0*sincos[k][0])-(t1*sincos[k][1]);
 		}
 
 		//reordering
-		for(k = 0; k<N8; k += 2) {
+		for(int k = 0; k<N8; k += 2) {
 			out[outOff+2*k] = buf[N8+k][1];
 			out[outOff+2+2*k] = buf[N8+1+k][1];
 
@@ -84,43 +81,40 @@ class MDCT implements MDCTTables {
 	}
 
 	void processForward(float[] in, float[] out) {
-		int n, k;
 		//pre-FFT complex multiplication
-		for(k = 0; k<N8; k++) {
-			n = k<<1;
-			tmp[0] = in[N-N4-1-n]+in[N-N4+n];
-			tmp[1] = in[N4+n]-in[N4-1-n];
+		for(int k = 0; k<N8; k++) {
+			int n = k<<1;
 
-			buf[k][0] = (tmp[0]*sincos[k][0])+(tmp[1]*sincos[k][1]);
-			buf[k][1] = (tmp[1]*sincos[k][0])-(tmp[0]*sincos[k][1]);
+			float t0 = in[N-N4-1-n]+in[N-N4+n];
+			float t1 = in[N4+n]-in[N4-1-n];
+			float sc[] = sincos[k];
 
-			buf[k][0] *= N;
-			buf[k][1] *= N;
+			buf[k][0] = N*((t0*sc[0])+(t1*sc[1]));
+			buf[k][1] = N*((t1*sc[0])-(t0*sc[1]));
 
-			tmp[0] = in[N2-1-n]-in[n];
-			tmp[1] = in[N2+n]+in[N-1-n];
-
-			buf[k+N8][0] = (tmp[0]*sincos[k+N8][0])+(tmp[1]*sincos[k+N8][1]);
-			buf[k+N8][1] = (tmp[1]*sincos[k+N8][0])-(tmp[0]*sincos[k+N8][1]);
-
-			buf[k+N8][0] *= N;
-			buf[k+N8][1] *= N;
+			t0 = in[N2-1-n]-in[n];
+			t1 = in[N2+n]+in[N-1-n];
+			sc = sincos[k+N8];
+			
+			buf[k+N8][0] = N*((t0*sc[0])+(t1*sc[1]));
+			buf[k+N8][1] = N*((t1*sc[0])-(t0*sc[1]));
 		}
 
 		//complex FFT, non-scaling
-		fft.process(buf, true);
+		fft.processForward(buf);
 
 		//post-FFT complex multiplication
-		for(k = 0; k<N4; k++) {
-			n = k<<1;
+		for(int k = 0; k<N4; k++) {
+			int n = k<<1;
 
-			tmp[0] = (buf[k][0]*sincos[k][0])+(buf[k][1]*sincos[k][1]);
-			tmp[1] = (buf[k][1]*sincos[k][0])-(buf[k][0]*sincos[k][1]);
+			float sc[] = sincos[k];
+			float t0 = (buf[k][0]*sc[0])+(buf[k][1]*sc[1]);
+			float t1 = (buf[k][1]*sc[0])-(buf[k][0]*sc[1]);
 
-			out[n] = -tmp[0];
-			out[N2-1-n] = tmp[1];
-			out[N2+n] = -tmp[1];
-			out[N-1-n] = tmp[0];
+			out[n] = -t0;
+			out[N2-1-n] = t1;
+			out[N2+n] = -t1;
+			out[N-1-n] = t0;
 		}
 	}
 }

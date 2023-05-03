@@ -1,9 +1,10 @@
 package net.sourceforge.jaad.mp4.boxes.impl;
 
-import java.io.IOException;
-import net.sourceforge.jaad.mp4.MP4InputStream;
+import net.sourceforge.jaad.mp4.MP4Input;
 import net.sourceforge.jaad.mp4.boxes.BoxTypes;
 import net.sourceforge.jaad.mp4.boxes.FullBox;
+
+import java.io.IOException;
 
 /**
  * This optional table answers three questions about sample dependency:
@@ -47,21 +48,23 @@ public class SampleDependencyTypeBox extends FullBox {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 		super.decode(in);
 
 		//get number of samples from SampleSizeBox
 		long sampleCount = -1;
-		if(parent.hasChild(BoxTypes.SAMPLE_SIZE_BOX)) sampleCount = ((SampleSizeBox) parent.getChild(BoxTypes.SAMPLE_SIZE_BOX)).getSampleCount();
+		if(parent.hasChild(BoxTypes.SAMPLE_SIZE_BOX))
+			sampleCount = ((SampleSizeBox) parent.getChild(BoxTypes.SAMPLE_SIZE_BOX)).getSampleCount();
 		//TODO: uncomment when CompactSampleSizeBox is implemented
-		//else if(parent.containsChild(BoxTypes.COMPACT_SAMPLE_SIZE_BOX)) sampleCount = ((CompactSampleSizeBox)parent.getChild(BoxTypes.SAMPLE_SIZE_BOX)).getSampleSize();
+		//else
+		//     if(parent.containsChild(BoxTypes.COMPACT_SAMPLE_SIZE_BOX)) sampleCount = ((CompactSampleSizeBox)parent.getChild(BoxTypes.SAMPLE_SIZE_BOX)).getSampleSize();
 		sampleHasRedundancy = new int[(int) sampleCount];
 		sampleIsDependedOn = new int[(int) sampleCount];
 		sampleDependsOn = new int[(int) sampleCount];
 
 		byte b;
 		for(int i = 0; i<sampleCount; i++) {
-			b = (byte) in.read();
+			b = (byte) in.readByte();
 			/* 2 bits reserved
 			 * 2 bits sampleDependsOn
 			 * 2 bits sampleIsDependedOn

@@ -1,7 +1,8 @@
 package net.sourceforge.jaad.mp4.boxes.impl.sampleentries.codec;
 
+import net.sourceforge.jaad.mp4.MP4Input;
+
 import java.io.IOException;
-import net.sourceforge.jaad.mp4.MP4InputStream;
 
 public class EVRCSpecificBox extends CodecSpecificBox {
 
@@ -12,10 +13,10 @@ public class EVRCSpecificBox extends CodecSpecificBox {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 		decodeCommon(in);
 
-		framesPerSample = in.read();
+		framesPerSample = in.readByte();
 	}
 
 	public int getFramesPerSample() {

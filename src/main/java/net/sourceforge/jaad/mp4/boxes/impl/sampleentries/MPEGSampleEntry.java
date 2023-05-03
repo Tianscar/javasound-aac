@@ -19,8 +19,9 @@
  */
 package net.sourceforge.jaad.mp4.boxes.impl.sampleentries;
 
+import net.sourceforge.jaad.mp4.MP4Input;
+
 import java.io.IOException;
-import net.sourceforge.jaad.mp4.MP4InputStream;
 
 /**
  * The MPEG sample entry is used in MP4 streams other than video, audio and
@@ -35,7 +36,7 @@ public class MPEGSampleEntry extends SampleEntry {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 		super.decode(in);
 
 		readChildren(in);

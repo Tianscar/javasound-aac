@@ -1,10 +1,11 @@
 package net.sourceforge.jaad.mp4.boxes.impl;
 
+import net.sourceforge.jaad.mp4.MP4Input;
+import net.sourceforge.jaad.mp4.boxes.BoxTypes;
 import net.sourceforge.jaad.mp4.boxes.FullBox;
-import net.sourceforge.jaad.mp4.MP4InputStream;
+
 import java.io.IOException;
 import java.util.Arrays;
-import net.sourceforge.jaad.mp4.boxes.BoxTypes;
 
 public class SampleSizeBox extends FullBox {
 
@@ -16,7 +17,7 @@ public class SampleSizeBox extends FullBox {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 		super.decode(in);
 
 		final boolean compact = type==BoxTypes.COMPACT_SAMPLE_SIZE_BOX;
@@ -24,9 +25,10 @@ public class SampleSizeBox extends FullBox {
 		final int sampleSize;
 		if(compact) {
 			in.skipBytes(3);
-			sampleSize = in.read();
+			sampleSize = in.readByte();
 		}
-		else sampleSize = (int) in.readBytes(4);
+		else
+			sampleSize = (int) in.readBytes(4);
 
 		sampleCount = in.readBytes(4);
 		sampleSizes = new long[(int) sampleCount];
@@ -36,18 +38,21 @@ public class SampleSizeBox extends FullBox {
 			if(sampleSize==4) {
 				int x;
 				for(int i = 0; i<sampleCount; i += 2) {
-					x = in.read();
+					x = in.readByte();
 					sampleSizes[i] = (x>>4)&0xF;
 					sampleSizes[i+1] = x&0xF;
 				}
 			}
-			else readSizes(in, sampleSize/8);
+			else
+				readSizes(in, sampleSize/8);
 		}
-		else if(sampleSize==0) readSizes(in, 4);
-		else Arrays.fill(sampleSizes, sampleSize);
+		else if(sampleSize==0)
+			readSizes(in, 4);
+		else
+			Arrays.fill(sampleSizes, sampleSize);
 	}
 
-	private void readSizes(MP4InputStream in, int len) throws IOException {
+	private void readSizes(MP4Input in, int len) throws IOException {
 		for(int i = 0; i<sampleCount; i++) {
 			sampleSizes[i] = in.readBytes(len);
 		}

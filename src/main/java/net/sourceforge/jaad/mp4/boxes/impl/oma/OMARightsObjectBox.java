@@ -1,8 +1,9 @@
 package net.sourceforge.jaad.mp4.boxes.impl.oma;
 
-import java.io.IOException;
-import net.sourceforge.jaad.mp4.MP4InputStream;
+import net.sourceforge.jaad.mp4.MP4Input;
 import net.sourceforge.jaad.mp4.boxes.FullBox;
+
+import java.io.IOException;
 
 /**
  * The rights object box may be used to insert a Protected Rights Object, 
@@ -20,7 +21,7 @@ public class OMARightsObjectBox extends FullBox {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 		super.decode(in);
 		data = new byte[(int) getLeft(in)];
 		in.readBytes(data);

@@ -1,8 +1,9 @@
 package net.sourceforge.jaad.mp4.boxes.impl;
 
-import java.io.IOException;
-import net.sourceforge.jaad.mp4.MP4InputStream;
+import net.sourceforge.jaad.mp4.MP4Input;
 import net.sourceforge.jaad.mp4.boxes.FullBox;
+
+import java.io.IOException;
 
 /**
  * The metabox relation box indicates a relation between two meta boxes at the
@@ -23,12 +24,12 @@ public class MetaBoxRelationBox extends FullBox {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 		super.decode(in);
 
 		firstMetaboxHandlerType = in.readBytes(4);
 		secondMetaboxHandlerType = in.readBytes(4);
-		metaboxRelation = in.read();
+		metaboxRelation = in.readByte();
 	}
 
 	/**

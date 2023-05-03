@@ -1,8 +1,9 @@
 package net.sourceforge.jaad.mp4.boxes.impl.fd;
 
-import java.io.IOException;
-import net.sourceforge.jaad.mp4.MP4InputStream;
+import net.sourceforge.jaad.mp4.MP4Input;
 import net.sourceforge.jaad.mp4.boxes.FullBox;
+
+import java.io.IOException;
 
 public class FilePartitionBox extends FullBox {
 
@@ -17,13 +18,13 @@ public class FilePartitionBox extends FullBox {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 		super.decode(in);
 
 		itemID = (int) in.readBytes(2);
 		packetPayloadSize = (int) in.readBytes(2);
 		in.skipBytes(1); //reserved
-		fecEncodingID = in.read();
+		fecEncodingID = in.readByte();
 		fecInstanceID = (int) in.readBytes(2);
 		maxSourceBlockLength = (int) in.readBytes(2);
 		encodingSymbolLength = (int) in.readBytes(2);

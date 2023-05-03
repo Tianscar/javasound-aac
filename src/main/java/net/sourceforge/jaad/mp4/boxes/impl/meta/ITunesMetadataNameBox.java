@@ -1,8 +1,9 @@
 package net.sourceforge.jaad.mp4.boxes.impl.meta;
 
-import java.io.IOException;
-import net.sourceforge.jaad.mp4.MP4InputStream;
+import net.sourceforge.jaad.mp4.MP4Input;
 import net.sourceforge.jaad.mp4.boxes.FullBox;
+
+import java.io.IOException;
 
 /**
  * This box is used in custom metadata tags (within the box-type '----'). It
@@ -19,7 +20,7 @@ public class ITunesMetadataNameBox extends FullBox {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 		super.decode(in);
 
 		metaName = in.readString((int) getLeft(in));

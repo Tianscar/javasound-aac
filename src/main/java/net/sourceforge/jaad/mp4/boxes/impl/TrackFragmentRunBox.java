@@ -1,8 +1,9 @@
 package net.sourceforge.jaad.mp4.boxes.impl;
 
-import java.io.IOException;
-import net.sourceforge.jaad.mp4.MP4InputStream;
+import net.sourceforge.jaad.mp4.MP4Input;
 import net.sourceforge.jaad.mp4.boxes.FullBox;
+
+import java.io.IOException;
 
 /**
  * Within the Track Fragment Box, there are zero or more Track Run Boxes. If the
@@ -32,33 +33,43 @@ public class TrackFragmentRunBox extends FullBox {
 	}
 
 	@Override
-	public void decode(MP4InputStream in) throws IOException {
+	public void decode(MP4Input in) throws IOException {
 		super.decode(in);
 
 		sampleCount = (int) in.readBytes(4);
 
 		//optional fields
 		dataOffsetPresent = ((flags&1)==1);
-		if(dataOffsetPresent) dataOffset = in.readBytes(4);
+		if(dataOffsetPresent)
+			dataOffset = in.readBytes(4);
 
 		firstSampleFlagsPresent = ((flags&4)==4);
-		if(firstSampleFlagsPresent) firstSampleFlags = in.readBytes(4);
+		if(firstSampleFlagsPresent)
+			firstSampleFlags = in.readBytes(4);
 
 		//all fields are optional
 		sampleDurationPresent = ((flags&0x100)==0x100);
-		if(sampleDurationPresent) sampleDuration = new long[sampleCount];
+		if(sampleDurationPresent)
+			sampleDuration = new long[sampleCount];
 		sampleSizePresent = ((flags&0x200)==0x200);
-		if(sampleSizePresent) sampleSize = new long[sampleCount];
+		if(sampleSizePresent)
+			sampleSize = new long[sampleCount];
 		sampleFlagsPresent = ((flags&0x400)==0x400);
-		if(sampleFlagsPresent) sampleFlags = new long[sampleCount];
+		if(sampleFlagsPresent)
+			sampleFlags = new long[sampleCount];
 		sampleCompositionTimeOffsetPresent = ((flags&0x800)==0x800);
-		if(sampleCompositionTimeOffsetPresent) sampleCompositionTimeOffset = new long[sampleCount];
+		if(sampleCompositionTimeOffsetPresent)
+			sampleCompositionTimeOffset = new long[sampleCount];
 
 		for(int i = 0; i<sampleCount&&getLeft(in)>0; i++) {
-			if(sampleDurationPresent) sampleDuration[i] = in.readBytes(4);
-			if(sampleSizePresent) sampleSize[i] = in.readBytes(4);
-			if(sampleFlagsPresent) sampleFlags[i] = in.readBytes(4);
-			if(sampleCompositionTimeOffsetPresent) sampleCompositionTimeOffset[i] = in.readBytes(4);
+			if(sampleDurationPresent)
+				sampleDuration[i] = in.readBytes(4);
+			if(sampleSizePresent)
+				sampleSize[i] = in.readBytes(4);
+			if(sampleFlagsPresent)
+				sampleFlags[i] = in.readBytes(4);
+			if(sampleCompositionTimeOffsetPresent)
+				sampleCompositionTimeOffset[i] = in.readBytes(4);
 		}
 	}
 

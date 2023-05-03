@@ -1,8 +1,10 @@
 package net.sourceforge.jaad.aac.sbr;
 
-interface FilterbankTable {
+import java.util.Arrays;
 
-	float[] qmf_c = {
+class Filterbank {
+
+	static final float[] qmf_c = {
 		0f, -0.00055252865047f,
 		-0.00056176925738f, -0.00049475180896f,
 		-0.00048752279712f, -0.00048937912498f,
@@ -325,4 +327,15 @@ interface FilterbankTable {
 		-0.00056176925738f, -0.00055252865047f
 	};
 
+	protected final float[] v; //double ringbuffer
+	protected int v_index; //ringbuffer index
+
+	public Filterbank(int channels) {
+		v = new float[2*channels*20];
+		v_index = 0;
+	}
+
+	public void reset() {
+		Arrays.fill(v, 0);
+	}
 }
