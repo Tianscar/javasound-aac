@@ -4,10 +4,11 @@ import net.sourceforge.jaad.aac.AACException;
 import net.sourceforge.jaad.aac.DecoderConfig;
 import net.sourceforge.jaad.aac.Profile;
 import net.sourceforge.jaad.aac.SampleFrequency;
-import net.sourceforge.jaad.aac.tools.Utils;
+import net.sourceforge.jaad.util.Utils;
 import net.sourceforge.jaad.aac.tools.ICPrediction;
 import net.sourceforge.jaad.aac.tools.LTPrediction;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ICSInfo implements ScaleFactorBands {
@@ -17,6 +18,9 @@ public class ICSInfo implements ScaleFactorBands {
 	public static final int MAX_WINDOW_GROUP_COUNT = MAX_WINDOW_COUNT;
 
 	static final Logger LOGGER = Logger.getLogger("jaad.aac.syntax.ICSInfo"); //for debugging
+	static {
+		if (!Utils.isDebug) LOGGER.setLevel(Level.INFO);
+	}
 
 	public static final int WINDOW_SHAPE_SINE = 0;
 	public static final int WINDOW_SHAPE_KAISER = 1;

@@ -1,5 +1,8 @@
 package net.sourceforge.jaad.mp4.boxes;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public final class Utils {
 
 	private static final long UNDETERMINED = 4294967295l;
@@ -21,4 +24,10 @@ public final class Utils {
 			x = l;
 		return x;
 	}
+
+	static final Logger BoxTypesLOGGER = Logger.getLogger("jaad.mp4.boxes.BoxTypes"); //for debugging
+	static {
+		if (!net.sourceforge.jaad.util.Utils.isDebug) BoxTypesLOGGER.setLevel(Level.WARNING);
+	}
+
 }

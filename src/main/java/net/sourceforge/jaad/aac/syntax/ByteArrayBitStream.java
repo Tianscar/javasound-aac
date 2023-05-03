@@ -1,6 +1,7 @@
 package net.sourceforge.jaad.aac.syntax;
 
 import net.sourceforge.jaad.aac.EOSException;
+import net.sourceforge.jaad.util.Utils;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -8,6 +9,9 @@ import java.util.logging.Logger;
 public class ByteArrayBitStream implements BitStream {
 
 	static final Logger LOGGER = Logger.getLogger("jaad.aac.syntax.BitStream"); //for debugging
+	static {
+		if (!Utils.isDebug) LOGGER.setLevel(Level.WARNING);
+	}
 
 	private void log(Level level, String message, int arg) {
 		if(LOGGER.isLoggable(level))

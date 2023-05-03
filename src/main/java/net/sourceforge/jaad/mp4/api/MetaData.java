@@ -304,8 +304,8 @@ public class MetaData {
 				put(Field.ALBUM, data.getText());
 			else if(l==BoxTypes.TRACK_NUMBER_BOX) {
 				byte[] b = data.getData();
-				put(Field.TRACK_NUMBER, new Integer(b[3]));
-				put(Field.TOTAL_TRACKS, new Integer(b[5]));
+				put(Field.TRACK_NUMBER, (int) b[3]);
+				put(Field.TOTAL_TRACKS, (int) b[5]);
 			}
 			else if(l==BoxTypes.DISK_NUMBER_BOX)
 				put(Field.DISK_NUMBER, data.getInteger());

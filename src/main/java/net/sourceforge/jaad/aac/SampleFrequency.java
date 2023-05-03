@@ -1,6 +1,7 @@
 package net.sourceforge.jaad.aac;
 
 import net.sourceforge.jaad.aac.syntax.BitStream;
+import net.sourceforge.jaad.util.Utils;
 
 import java.util.List;
 
@@ -29,7 +30,7 @@ public enum SampleFrequency implements SampleRate {
 
 	public static final int ESCAPE_INDEX = 0x0f;
 
-	public static final List<SampleFrequency> TABLE = List.of(values());
+	public static final List<SampleFrequency> TABLE = Utils.listOf(values());
 
 	/**
 	 * Returns a sample frequency instance for the given index. If the index

@@ -5,7 +5,9 @@ import net.sourceforge.jaad.aac.SampleRate;
 import net.sourceforge.jaad.aac.syntax.BitStream;
 import net.sourceforge.jaad.aac.syntax.ICSInfo;
 import net.sourceforge.jaad.aac.syntax.ICStream;
+import net.sourceforge.jaad.util.Utils;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -15,6 +17,9 @@ import java.util.logging.Logger;
 public class TNS implements TNSTables {
 
 	static final Logger LOGGER = Logger.getLogger("jaad.aac.syntax.TNS"); //for debugging
+	static {
+		if (!Utils.isDebug) LOGGER.setLevel(Level.OFF);
+	}
 
 	private static final int TNS_MAX_ORDER = 20;
 	private static final int[] SHORT_BITS = {1, 4, 3}, LONG_BITS = {2, 6, 5};

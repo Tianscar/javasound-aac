@@ -1,4 +1,6 @@
-package net.sourceforge.jaad.aac.tools;
+package net.sourceforge.jaad.util;
+
+import java.util.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -7,6 +9,8 @@ package net.sourceforge.jaad.aac.tools;
  * Time: 18:59
  */
 public interface Utils {
+
+    boolean isDebug = Boolean.parseBoolean(System.getProperty("net.sourceforge.jaad.debug", "false").toLowerCase(Locale.ROOT));
 
     static boolean[] copyOf(boolean[] array) {
         return array==null ? null : java.util.Arrays.copyOf(array, array.length);
@@ -29,4 +33,17 @@ public interface Utils {
         idx = Math.min(idx, max);
         return idx;
     }
+
+    @SafeVarargs
+    static<E> List<E> listOf(E... elements) {
+        if (elements.length == 0) return Collections.emptyList();
+        else return Collections.unmodifiableList(Arrays.asList(elements));
+    }
+
+    @SuppressWarnings("unchecked")
+    static<E> List<E> listCopyOf(Collection<? extends E> coll) {
+        if (coll == Collections.emptyList()) return (List<E>) coll;
+        else return (List<E>) listOf(coll.toArray());
+    }
+
 }

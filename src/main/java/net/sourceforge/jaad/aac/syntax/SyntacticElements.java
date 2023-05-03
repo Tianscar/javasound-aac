@@ -3,15 +3,20 @@ package net.sourceforge.jaad.aac.syntax;
 import net.sourceforge.jaad.aac.AACException;
 import net.sourceforge.jaad.aac.DecoderConfig;
 import net.sourceforge.jaad.aac.filterbank.FilterBank;
+import net.sourceforge.jaad.util.Utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class SyntacticElements {
 	static final Logger LOGGER = Logger.getLogger("jaad.SyntacticElements"); //for debugging
+	static {
+		if (!Utils.isDebug) LOGGER.setLevel(Level.FINE);
+	}
 
 	//global properties
 	private DecoderConfig config;

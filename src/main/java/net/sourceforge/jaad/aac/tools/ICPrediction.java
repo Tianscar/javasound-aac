@@ -3,6 +3,7 @@ package net.sourceforge.jaad.aac.tools;
 import net.sourceforge.jaad.aac.SampleFrequency;
 import net.sourceforge.jaad.aac.syntax.BitStream;
 import net.sourceforge.jaad.aac.syntax.ICSInfo;
+import net.sourceforge.jaad.util.Utils;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -13,6 +14,9 @@ import java.util.logging.Logger;
  */
 public class ICPrediction {
 	static final Logger LOGGER = Logger.getLogger("jaad.aac.tools.ICPrediction"); //for debugging
+	static {
+		if (!Utils.isDebug) LOGGER.setLevel(Level.WARNING);
+	}
 	
 	private static final float SF_SCALE = 1.0f/-1024.0f;
 	private static final float INV_SF_SCALE = 1.0f/SF_SCALE;

@@ -1,6 +1,6 @@
 package net.sourceforge.jaad.aac.ps;
 
-import net.sourceforge.jaad.aac.tools.Utils;
+import net.sourceforge.jaad.util.Utils;
 
 import static net.sourceforge.jaad.aac.ps.Huffman.*;
 import static net.sourceforge.jaad.aac.ps.PSTables.*;

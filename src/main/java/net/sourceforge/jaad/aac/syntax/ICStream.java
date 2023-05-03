@@ -9,6 +9,7 @@ import net.sourceforge.jaad.aac.gain.GainControl;
 import net.sourceforge.jaad.aac.huffman.HCB;
 import net.sourceforge.jaad.aac.huffman.Huffman;
 import net.sourceforge.jaad.aac.tools.TNS;
+import net.sourceforge.jaad.util.Utils;
 
 import java.util.Arrays;
 import java.util.logging.Level;
@@ -18,6 +19,9 @@ import java.util.logging.Logger;
 public class ICStream implements HCB, ScaleFactorTable, IQTable {
 
 	static final Logger LOGGER = Logger.getLogger("jaad.aac.syntax.ICStream"); //for debugging
+	static {
+		if (!Utils.isDebug) LOGGER.setLevel(Level.FINEST);
+	}
 
 	public static final int MAX_SECTIONS = 120;
 
