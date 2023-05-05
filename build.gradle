@@ -38,7 +38,7 @@ test {
 
 java {
     withSourcesJar()
-    //withJavadocJar() // TODO
+    withJavadocJar()
 }
 
 publishing {
@@ -94,6 +94,7 @@ signing {
 }
 
 javadoc {
+    options.addStringOption("Xdoclint:none", "-quiet") // TODO cleanup JavaDocs
     if (JavaVersion.current().isJava9Compatible()) {
         options.addBooleanOption('html5', true)
     }
