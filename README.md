@@ -16,7 +16,7 @@ repositories {
 ```groovy
 dependencies {
     ...
-    implementation 'com.tianscar.javasound:jaad:0.9.0'
+    implementation 'com.tianscar.javasound:jaad:0.8.9'
 }
 ```
 
