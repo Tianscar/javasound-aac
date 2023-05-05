@@ -1,6 +1,6 @@
 package net.sourceforge.jaad.mp4.boxes;
 
-import net.sourceforge.jaad.mp4.MP4Input;
+import net.sourceforge.jaad.mp4.MP4InputStream;
 import net.sourceforge.jaad.mp4.boxes.impl.*;
 import net.sourceforge.jaad.mp4.boxes.impl.drm.FairPlayDataBox;
 import net.sourceforge.jaad.mp4.boxes.impl.fd.*;
@@ -318,7 +318,7 @@ public class BoxFactory implements BoxTypes {
 		PARAMETER.put(OMA_MUTABLE_DRM_INFORMATION_BOX, new String[]{"OMA DRM Mutable DRM Information Box"});
 	}
 
-	public static Box parseBox(Box parent, MP4Input in) throws IOException {
+	public static Box parseBox(Box parent, MP4InputStream in) throws IOException {
 
 		long offset = in.getOffset();
 		long size = in.readBytes(4);
@@ -327,7 +327,7 @@ public class BoxFactory implements BoxTypes {
 		return parseBox(parent, offset, size, type, in);
 	}
 
-	public static Box parseBox(Box parent, long offset, long size, long type, MP4Input in) throws IOException {
+	public static Box parseBox(Box parent, long offset, long size, long type, MP4InputStream in) throws IOException {
 
 		if(size==1)
 			size = in.readBytes(8);
@@ -362,14 +362,14 @@ public class BoxFactory implements BoxTypes {
 			LOGGER.log(Level.SEVERE, "box {0} overread: {1} bytes, offset: {2}", new Object[]{typeToString(type), -left, in.getOffset()});
 
 		//if mdat found and no random access, don't skip
-		if(box.getType()!=MEDIA_DATA_BOX||in.hasRandomAccess())
+		if(box.getType()!=MEDIA_DATA_BOX||in.isSeekable())
 			in.skipBytes(left);
 
 		return box;
 	}
 
 	//TODO: remove usages
-	public static Box parseBox(MP4Input in, Class<? extends BoxImpl> boxClass) throws IOException {
+	public static Box parseBox(MP4InputStream in, Class<? extends BoxImpl> boxClass) throws IOException {
 		final long offset = in.getOffset();
 
 		long size = in.readBytes(4);

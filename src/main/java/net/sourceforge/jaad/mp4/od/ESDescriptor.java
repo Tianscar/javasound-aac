@@ -1,6 +1,6 @@
 package net.sourceforge.jaad.mp4.od;
 
-import net.sourceforge.jaad.mp4.MP4Input;
+import net.sourceforge.jaad.mp4.MP4InputStream;
 
 import java.io.IOException;
 
@@ -28,7 +28,7 @@ public class ESDescriptor extends Descriptor {
 	private boolean streamDependency, urlPresent, ocrPresent;
 	private String url;
 
-	void decode(MP4Input in) throws IOException {
+	void decode(MP4InputStream in) throws IOException {
 		esID = (int) in.readBytes(2);
 
 		//1 bit stream dependence flag, 1 it url flag, 1 reserved, 5 bits stream priority

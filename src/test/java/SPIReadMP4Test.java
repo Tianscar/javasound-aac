@@ -8,17 +8,11 @@ public class SPIReadMP4Test {
         try {
             AudioInputStream in = AudioSystem.getAudioInputStream(new File("src/test/resources/fbodemo1.m4a"));
             if (in != null) {
-                AudioFormat baseFormat = in.getFormat();
-
-                AudioFormat targetFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, baseFormat.getSampleRate(),
-                        16, baseFormat.getChannels(), baseFormat.getChannels() * 2, baseFormat.getSampleRate(), false);
-
-                AudioInputStream dataIn = AudioSystem.getAudioInputStream(targetFormat, in);
 
                 byte[] buffer = new byte[4096];
 
                 // get a line from a mixer in the system with the wanted format
-                DataLine.Info info = new DataLine.Info(SourceDataLine.class, targetFormat);
+                DataLine.Info info = new DataLine.Info(SourceDataLine.class, in.getFormat());
                 SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
 
                 if (line != null) {
@@ -27,7 +21,7 @@ public class SPIReadMP4Test {
                     line.start();
                     int nBytesRead = 0;
                     while (nBytesRead != -1) {
-                        nBytesRead = dataIn.read(buffer, 0, buffer.length);
+                        nBytesRead = in.read(buffer, 0, buffer.length);
                         if (nBytesRead != -1) {
                             line.write(buffer, 0, nBytesRead);
                         }
@@ -37,7 +31,7 @@ public class SPIReadMP4Test {
                     line.stop();
                     line.close();
 
-                    dataIn.close();
+                    in.close();
                 }
 
                 in.close();

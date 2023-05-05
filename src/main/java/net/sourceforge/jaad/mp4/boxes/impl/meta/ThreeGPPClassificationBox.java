@@ -1,6 +1,6 @@
 package net.sourceforge.jaad.mp4.boxes.impl.meta;
 
-import net.sourceforge.jaad.mp4.MP4Input;
+import net.sourceforge.jaad.mp4.MP4InputStream;
 
 import java.io.IOException;
 
@@ -14,7 +14,7 @@ public class ThreeGPPClassificationBox extends ThreeGPPMetadataBox {
 	}
 
 	@Override
-	public void decode(MP4Input in) throws IOException {
+	public void decode(MP4InputStream in) throws IOException {
 		decodeCommon(in);
 
 		entity = in.readBytes(4);

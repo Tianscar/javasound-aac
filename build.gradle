@@ -6,7 +6,7 @@ plugins {
 
 ext {
     libraryName = 'Java AAC Decoder'
-    libraryGroupName = 'com.tianscar.audio'
+    libraryGroupName = 'com.tianscar.media'
     libraryVendorName = 'Tianscar'
 
     libraryVersionCode = 1

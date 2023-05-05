@@ -1,6 +1,6 @@
 package net.sourceforge.jaad.mp4.boxes.impl;
 
-import net.sourceforge.jaad.mp4.MP4Input;
+import net.sourceforge.jaad.mp4.MP4InputStream;
 import net.sourceforge.jaad.mp4.boxes.FullBox;
 import net.sourceforge.jaad.mp4.od.ESDescriptor;
 import net.sourceforge.jaad.mp4.od.ObjectDescriptor;
@@ -23,7 +23,7 @@ public class ESDBox extends FullBox {
 	}
 
 	@Override
-	public void decode(MP4Input in) throws IOException {
+	public void decode(MP4InputStream in) throws IOException {
 		super.decode(in);
 		
 		esd = (ESDescriptor) ObjectDescriptor.createDescriptor(in);

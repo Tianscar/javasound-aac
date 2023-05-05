@@ -1,6 +1,6 @@
 package net.sourceforge.jaad.mp4.boxes.impl.meta;
 
-import net.sourceforge.jaad.mp4.MP4Input;
+import net.sourceforge.jaad.mp4.MP4InputStream;
 import net.sourceforge.jaad.mp4.boxes.FullBox;
 
 import java.io.IOException;
@@ -72,7 +72,7 @@ public class ITunesMetadataBox extends FullBox {
 	}
 
 	@Override
-	public void decode(MP4Input in) throws IOException {
+	public void decode(MP4InputStream in) throws IOException {
 		super.decode(in);
 
 		dataType = DataType.forInt(flags);
@@ -134,7 +134,7 @@ public class ITunesMetadataBox extends FullBox {
 
 	public Date getDate() {
 		//timestamp lengths: 4,7,9
-		final int i = (int) Math.floor(data.length/3)-1;
+		final int i = (int) Math.floor(data.length/3f)-1;
 		final Date date;
 		if(i>=0&&i<TIMESTAMPS.length) {
 			final SimpleDateFormat sdf = new SimpleDateFormat(TIMESTAMPS[i]);

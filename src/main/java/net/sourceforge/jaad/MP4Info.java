@@ -1,7 +1,7 @@
 package net.sourceforge.jaad;
 
 import net.sourceforge.jaad.mp4.MP4Container;
-import net.sourceforge.jaad.mp4.MP4Input;
+import net.sourceforge.jaad.mp4.MP4InputStream;
 import net.sourceforge.jaad.mp4.api.MetaData;
 import net.sourceforge.jaad.mp4.api.Movie;
 import net.sourceforge.jaad.mp4.api.Protection;
@@ -33,7 +33,7 @@ public class MP4Info {
 				else
 					file = args[0];
 
-				final MP4Input is = MP4Input.open(new RandomAccessFile(file, "r"));
+				final MP4InputStream is = MP4InputStream.open(new RandomAccessFile(file, "r"));
 				final MP4Container cont = new MP4Container(is);
 				final Movie movie = cont.getMovie();
 				System.out.println("Movie:");

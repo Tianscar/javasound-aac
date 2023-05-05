@@ -24,7 +24,7 @@ class AACAudioInputStream extends AsynchronousAudioInputStream {
 
 	@Override
 	public AudioFormat getFormat() {
-		if(audioFormat==null) {
+		if (audioFormat == null) {
 			//read first frame
 			try {
 				decoder.decodeFrame(adts.readNextFrame(), sampleBuffer);
@@ -40,7 +40,7 @@ class AACAudioInputStream extends AsynchronousAudioInputStream {
 
 	public void execute() {
 		try {
-			if(saved==null) {
+			if (saved == null) {
 				decoder.decodeFrame(adts.readNextFrame(), sampleBuffer);
 				buffer.write(sampleBuffer.getData());
 			}
@@ -49,9 +49,9 @@ class AACAudioInputStream extends AsynchronousAudioInputStream {
 				saved = null;
 			}
 		}
-		catch(IOException e) {
+		catch (IOException e) {
 			buffer.close();
-			return;
 		}
 	}
+
 }
