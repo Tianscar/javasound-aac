@@ -1,5 +1,7 @@
 package net.sourceforge.jaad.util;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 /**
@@ -44,6 +46,23 @@ public interface Utils {
     static<E> List<E> listCopyOf(Collection<? extends E> coll) {
         if (coll == Collections.emptyList()) return (List<E>) coll;
         else return (List<E>) listOf(coll.toArray());
+    }
+
+    static int readNBytes(InputStream in, byte[] b, int off, int len) throws IOException {
+        if (off < 0 || off + len > b.length) throw new ArrayIndexOutOfBoundsException();
+
+        int n = 0;
+        while (n < len) {
+            int count = in.read(b, off + n, len - n);
+            if (count < 0)
+                break;
+            n += count;
+        }
+        return n;
+    }
+
+    static int readNBytes(InputStream in, byte[] b) throws IOException {
+        return readNBytes(in, b, 0, b.length);
     }
 
 }

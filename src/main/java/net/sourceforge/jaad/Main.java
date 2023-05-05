@@ -3,7 +3,7 @@ package net.sourceforge.jaad;
 import net.sourceforge.jaad.aac.Decoder;
 import net.sourceforge.jaad.adts.ADTSDemultiplexer;
 import net.sourceforge.jaad.mp4.MP4Container;
-import net.sourceforge.jaad.mp4.MP4Input;
+import net.sourceforge.jaad.mp4.MP4InputStream;
 import net.sourceforge.jaad.mp4.api.AudioTrack;
 import net.sourceforge.jaad.mp4.api.Frame;
 import net.sourceforge.jaad.mp4.api.Movie;
@@ -50,7 +50,7 @@ public class Main {
 	private static void decodeMP4(String in, String out) throws Exception {
 		WaveFileWriter wav = null;
 		try {
-			final MP4Input is = MP4Input.open(new RandomAccessFile(in, "r"));
+			final MP4InputStream is = MP4InputStream.open(new RandomAccessFile(in, "r"));
 			final MP4Container cont = new MP4Container(is);
 			final Movie movie = cont.getMovie();
 			final List<Track> tracks = movie.getTracks(AudioTrack.AudioCodec.AAC);

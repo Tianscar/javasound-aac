@@ -1,6 +1,6 @@
 package net.sourceforge.jaad.mp4.boxes.impl;
 
-import net.sourceforge.jaad.mp4.MP4Input;
+import net.sourceforge.jaad.mp4.MP4InputStream;
 import net.sourceforge.jaad.mp4.boxes.Box;
 import net.sourceforge.jaad.mp4.boxes.BoxFactory;
 import net.sourceforge.jaad.mp4.boxes.BoxTypes;
@@ -18,13 +18,13 @@ public class MetaBox extends FullBox {
 	}
 
 	@Override
-	public void decode(MP4Input in) throws IOException {
+	public void decode(MP4InputStream in) throws IOException {
 		super.decode(in);
 		readChildren(in);
 	}
 
 	@Override
-	protected Box parseBox(MP4Input in) throws IOException {
+	protected Box parseBox(MP4InputStream in) throws IOException {
 
 		long offset = in.getOffset();
 		long size = in.readBytes(4);

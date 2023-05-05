@@ -1,6 +1,6 @@
 package net.sourceforge.jaad.mp4.api;
 
-import net.sourceforge.jaad.mp4.MP4Input;
+import net.sourceforge.jaad.mp4.MP4InputStream;
 import net.sourceforge.jaad.mp4.boxes.Box;
 import net.sourceforge.jaad.mp4.boxes.BoxTypes;
 import net.sourceforge.jaad.mp4.boxes.impl.*;
@@ -29,7 +29,7 @@ public abstract class Track {
 	public interface Codec {
 		//TODO: currently only marker interface
 	}
-	private final MP4Input in;
+	private final MP4InputStream in;
 	protected final TrackHeaderBox tkhd;
 	private final MediaHeaderBox mdhd;
 	private final boolean inFile;
@@ -41,7 +41,7 @@ public abstract class Track {
 	protected DecoderInfo decoderInfo;
 	protected Protection protection;
 
-	Track(Box trak, MP4Input in) {
+	Track(Box trak, MP4InputStream in) {
 		this.in = in;
 
 		tkhd = (TrackHeaderBox) trak.getChild(BoxTypes.TRACK_HEADER_BOX);
@@ -326,7 +326,7 @@ public abstract class Track {
 			if(diff>0)
 				in.skipBytes(diff);
 			else if(diff<0) {
-				if(in.hasRandomAccess())
+				if(in.isSeekable())
 					in.seek(frame.getOffset());
 				else {
 					DecoderInfo.LOGGER.log(Level.WARNING, "readNextFrame failed: frame {0} already skipped, offset:{1}, stream:{2}", new Object[]{currentFrame, frame.getOffset(), in.getOffset()});

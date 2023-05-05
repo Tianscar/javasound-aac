@@ -5,7 +5,7 @@ import net.sourceforge.jaad.aac.Decoder;
 import net.sourceforge.jaad.aac.DecoderConfig;
 import net.sourceforge.jaad.adts.ADTSDemultiplexer;
 import net.sourceforge.jaad.mp4.MP4Container;
-import net.sourceforge.jaad.mp4.MP4Input;
+import net.sourceforge.jaad.mp4.MP4InputStream;
 import net.sourceforge.jaad.mp4.api.AudioTrack;
 import net.sourceforge.jaad.mp4.api.Frame;
 import net.sourceforge.jaad.mp4.api.Movie;
@@ -14,10 +14,14 @@ import net.sourceforge.jaad.mp4.api.Track;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.SourceDataLine;
+import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -56,22 +60,21 @@ public class Play {
 	}
 
 	private static void decodeMP4(String in) throws Exception {
-		if(in.startsWith("http:"))
-			decodeMP4(new URL(in).openStream());
+		if (in.startsWith("http:") || in.startsWith("https:"))
+			decodeMP4(new URL(in));
 		else
-			//decodeMP4(new FileInputStream(in));
 			decodeMP4(new RandomAccessFile(in, "r"));
 	}
 
-	private static void decodeMP4(InputStream in) throws Exception {
-			decodeMP4(MP4Input.open(in));
+	private static void decodeMP4(URL in) throws Exception {
+			decodeMP4(MP4InputStream.open(in));
 	}
 
 	private static void decodeMP4(RandomAccessFile in) throws Exception {
-			decodeMP4(MP4Input.open(in));
+			decodeMP4(MP4InputStream.open(in));
 	}
 
-	private static void decodeMP4(MP4Input in) throws Exception {
+	private static void decodeMP4(MP4InputStream in) throws Exception {
 
 		//create container
 		final MP4Container cont = new MP4Container(in);
@@ -120,7 +123,7 @@ public class Play {
 		if(in.startsWith("http:"))
 			decodeAAC(new URL(in).openStream());
 		else
-			decodeAAC(new FileInputStream(in));
+			decodeAAC(Files.newInputStream(Paths.get(in), StandardOpenOption.READ));
 	}
 
 	private static void decodeAAC(InputStream in) throws Exception {
@@ -130,16 +133,19 @@ public class Play {
 		AudioFormat aufmt = dec.getAudioFormat();
 		final SampleBuffer buf = new SampleBuffer(aufmt);
 
-		try(SourceDataLine line = AudioSystem.getSourceDataLine(aufmt)) {
+		try (SourceDataLine line = AudioSystem.getSourceDataLine(aufmt)) {
 			line.open();
 			line.start();
 
-			while(true) {
+			while (true) {
 				byte[] b = adts.readNextFrame();
 				dec.decodeFrame(b, buf);
 				b = buf.getData();
 				line.write(b, 0, b.length);
 			}
 		}
+		catch (EOFException ignored) {
+		}
 	}
+
 }

@@ -3,7 +3,7 @@ package net.sourceforge.jaad.mp4;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-public class MP4RandomAccessStream extends MP4InputReader {
+public class MP4RAFInputStream extends MP4InputStream {
 
 	private final RandomAccessFile fin;
 
@@ -14,24 +14,24 @@ public class MP4RandomAccessStream extends MP4InputReader {
 	 *
 	 * @param fin a <code>RandomAccessFile</code> to read from
 	 */
-	MP4RandomAccessStream(RandomAccessFile fin) {
+	MP4RAFInputStream(RandomAccessFile fin) {
 		this.fin = fin;
 	}
 
 	@Override
-	protected int read() throws IOException {
+	public int read() throws IOException {
 		return fin.read();
 	}
 
 
 	@Override
-	protected int read(byte[] b, int off, int len) throws IOException {
+	public int read(byte[] b, int off, int len) throws IOException {
 		return fin.read(b, off, len);
 	}
 
 	@Override
-	protected long skip(int n) throws IOException {
-		return fin.skipBytes(n);
+	public long skip(long n) throws IOException {
+		return fin.skipBytes((int) Math.min(Integer.MAX_VALUE, n));
 	}
 
 	@Override
@@ -45,7 +45,7 @@ public class MP4RandomAccessStream extends MP4InputReader {
 	}
 
 	@Override
-	public boolean hasRandomAccess() {
+	public boolean isSeekable() {
 		return true;
 	}
 
@@ -58,4 +58,10 @@ public class MP4RandomAccessStream extends MP4InputReader {
 	public void close() throws IOException {
 		fin.close();
 	}
+
+	@Override
+	public int available() throws IOException {
+		return (int) Math.min(Integer.MAX_VALUE, fin.length()-fin.getFilePointer()-1);
+	}
+
 }

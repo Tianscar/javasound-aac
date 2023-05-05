@@ -1,6 +1,6 @@
 package net.sourceforge.jaad.mp4.boxes.impl;
 
-import net.sourceforge.jaad.mp4.MP4Input;
+import net.sourceforge.jaad.mp4.MP4InputStream;
 import net.sourceforge.jaad.mp4.boxes.FullBox;
 
 import java.io.IOException;
@@ -18,7 +18,7 @@ public class ItemProtectionBox extends FullBox {
 	}
 
 	@Override
-	public void decode(MP4Input in) throws IOException {
+	public void decode(MP4InputStream in) throws IOException {
 		super.decode(in);
 
 		final int protectionCount = (int) in.readBytes(2);

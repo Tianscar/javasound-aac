@@ -1,6 +1,6 @@
 package net.sourceforge.jaad.mp4.api;
 
-import net.sourceforge.jaad.mp4.MP4Input;
+import net.sourceforge.jaad.mp4.MP4InputStream;
 import net.sourceforge.jaad.mp4.boxes.Box;
 import net.sourceforge.jaad.mp4.boxes.BoxTypes;
 import net.sourceforge.jaad.mp4.boxes.impl.HandlerBox;
@@ -14,13 +14,13 @@ import java.util.List;
 
 public class Movie {
 
-	private final MP4Input in;
+	private final MP4InputStream in;
 	private final MovieHeaderBox mvhd;
 	private final List<Track> tracks;
 	private final MetaData metaData;
 	private final List<Protection> protections;
 
-	public Movie(Box moov, MP4Input in) {
+	public Movie(Box moov, MP4InputStream in) {
 		this.in = in;
 
 		//create tracks

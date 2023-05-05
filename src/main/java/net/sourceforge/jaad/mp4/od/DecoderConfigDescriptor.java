@@ -1,6 +1,6 @@
 package net.sourceforge.jaad.mp4.od;
 
-import net.sourceforge.jaad.mp4.MP4Input;
+import net.sourceforge.jaad.mp4.MP4InputStream;
 
 import java.io.IOException;
 
@@ -21,7 +21,7 @@ public class DecoderConfigDescriptor extends Descriptor {
 	private boolean upstream;
 	private long maxBitRate, averageBitRate;
 
-	void decode(MP4Input in) throws IOException {
+	void decode(MP4InputStream in) throws IOException {
 		objectProfile = in.readByte();
 		//6 bits stream type, 1 bit upstream flag, 1 bit reserved
 		final int x = in.readByte();

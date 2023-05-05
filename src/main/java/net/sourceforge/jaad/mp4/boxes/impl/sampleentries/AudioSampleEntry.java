@@ -19,7 +19,7 @@
  */
 package net.sourceforge.jaad.mp4.boxes.impl.sampleentries;
 
-import net.sourceforge.jaad.mp4.MP4Input;
+import net.sourceforge.jaad.mp4.MP4InputStream;
 
 import java.io.IOException;
 
@@ -32,7 +32,7 @@ public class AudioSampleEntry extends SampleEntry {
 	}
 
 	@Override
-	public void decode(MP4Input in) throws IOException {
+	public void decode(MP4InputStream in) throws IOException {
 		super.decode(in);
 
 		in.skipBytes(8); //reserved

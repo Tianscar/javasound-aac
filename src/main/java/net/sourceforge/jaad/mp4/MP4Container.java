@@ -42,7 +42,7 @@ import java.util.List;
  */
 public class MP4Container {
 
-	private final MP4Input in;
+	private final MP4InputStream in;
 	private final List<Box> boxes;
 	private Brand major, minor;
 	private Brand[] compatible;
@@ -51,7 +51,7 @@ public class MP4Container {
 	private Box moov;
 	private Movie movie;
 
-	public MP4Container(MP4Input in) throws IOException {
+	public MP4Container(MP4InputStream in) throws IOException {
 		this.in = in;
 		boxes = new ArrayList<Box>();
 
@@ -86,8 +86,8 @@ public class MP4Container {
 			else if(type==BoxTypes.MEDIA_DATA_BOX) {
 				if(moovFound)
 					break;
-				else if(!in.hasRandomAccess())
-					throw new MP4Exception("movie box at end of file, need random access");
+				else if(!in.isSeekable())
+					throw new MP4Exception("movie box at end of file, need seekable");
 			}
 		}
 	}

@@ -18,13 +18,13 @@ abstract class AsynchronousAudioInputStream extends AudioInputStream implements 
 
 	@Override
 	public int read() throws IOException {
-		int i = -1;
-		if(singleByte==null)
+		final int i;
+		if (singleByte == null)
 			singleByte = new byte[1];
-		if(buffer.read(singleByte, 0, 1)==-1)
+		if (buffer.read(singleByte, 0, 1) == -1)
 			i = -1;
 		else
-			i = singleByte[0]&0xFF;
+			i = singleByte[0] & 0xFF;
 		return i;
 	}
 
@@ -42,7 +42,7 @@ abstract class AsynchronousAudioInputStream extends AudioInputStream implements 
 	public long skip(long len) throws IOException {
 		int l = (int) len;
 		final byte[] b = new byte[l];
-		while(l>0) {
+		while (l > 0) {
 			l -= buffer.read(b, 0, l);
 		}
 		return len;
@@ -64,11 +64,11 @@ abstract class AsynchronousAudioInputStream extends AudioInputStream implements 
 	}
 
 	@Override
-	public void mark(int limit) {
-	}
+	public void mark(int limit) {}
 
 	@Override
 	public void reset() throws IOException {
 		throw new IOException("mark not supported");
 	}
+
 }

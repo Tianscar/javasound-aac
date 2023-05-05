@@ -1,6 +1,6 @@
 package net.sourceforge.jaad.mp4.boxes.impl;
 
-import net.sourceforge.jaad.mp4.MP4Input;
+import net.sourceforge.jaad.mp4.MP4InputStream;
 import net.sourceforge.jaad.mp4.boxes.FullBox;
 
 import java.io.IOException;
@@ -17,15 +17,15 @@ public class ItemInformationEntry extends FullBox {
 	}
 
 	@Override
-	public void decode(MP4Input in) throws IOException {
+	public void decode(MP4InputStream in) throws IOException {
 		super.decode(in);
 
 		if((version==0)||(version==1)) {
 			itemID = (int) in.readBytes(2);
 			itemProtectionIndex = (int) in.readBytes(2);
-			itemName = in.readUTFString((int) getLeft(in), MP4Input.UTF8);
-			contentType = in.readUTFString((int) getLeft(in), MP4Input.UTF8);
-			contentEncoding = in.readUTFString((int) getLeft(in), MP4Input.UTF8); //optional
+			itemName = in.readUTFString((int) getLeft(in), MP4InputStream.UTF8);
+			contentType = in.readUTFString((int) getLeft(in), MP4InputStream.UTF8);
+			contentEncoding = in.readUTFString((int) getLeft(in), MP4InputStream.UTF8); //optional
 		}
 		if(version==1&&getLeft(in)>0) {
 			//optional
@@ -130,7 +130,7 @@ public class ItemInformationEntry extends FullBox {
 			return ext;
 		}
 
-		abstract void decode(MP4Input in) throws IOException;
+		abstract void decode(MP4InputStream in) throws IOException;
 	}
 
 	public static class FDExtension extends Extension {
@@ -140,9 +140,9 @@ public class ItemInformationEntry extends FullBox {
 		private long[] groupID;
 
 		@Override
-		void decode(MP4Input in) throws IOException {
-			contentLocation = in.readUTFString(100, MP4Input.UTF8);
-			contentMD5 = in.readUTFString(100, MP4Input.UTF8);
+		void decode(MP4InputStream in) throws IOException {
+			contentLocation = in.readUTFString(100, MP4InputStream.UTF8);
+			contentMD5 = in.readUTFString(100, MP4InputStream.UTF8);
 
 			contentLength = in.readBytes(8);
 			transferLength = in.readBytes(8);
