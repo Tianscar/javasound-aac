@@ -1,4 +1,4 @@
-package com.tianscar.media.aac;
+package net.sourceforge.jaad.test;
 
 import net.sourceforge.jaad.SampleBuffer;
 import net.sourceforge.jaad.aac.Decoder;

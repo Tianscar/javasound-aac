@@ -10,10 +10,10 @@ import net.sourceforge.jaad.mp4.api.Movie;
 import net.sourceforge.jaad.mp4.api.Track;
 import net.sourceforge.jaad.util.wav.WaveFileWriter;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 
 /**
@@ -79,12 +79,12 @@ public class Main {
 	private static void decodeAAC(String in, String out) throws IOException {
 		WaveFileWriter wav = null;
 		try {
-			final ADTSDemultiplexer adts = new ADTSDemultiplexer(new FileInputStream(in));
+			final ADTSDemultiplexer adts = new ADTSDemultiplexer(Files.newInputStream(Paths.get(in), StandardOpenOption.READ));
 			final Decoder dec = Decoder.create(adts.getDecoderInfo());
 
 			final SampleBuffer buf = new SampleBuffer();
 			byte[] b;
-			while(true) {
+			while (true) {
 				b = adts.readNextFrame();
 				dec.decodeFrame(b, buf);
 
@@ -92,6 +92,8 @@ public class Main {
 					wav = new WaveFileWriter(new File(out), buf.getSampleRate(), buf.getChannels(), buf.getBitsPerSample());
 				wav.write(buf.getData());
 			}
+		}
+		catch (EOFException ignored) {
 		}
 		finally {
 			if(wav!=null)

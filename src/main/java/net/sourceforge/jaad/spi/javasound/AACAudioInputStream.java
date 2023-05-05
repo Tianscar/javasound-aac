@@ -31,7 +31,7 @@ class AACAudioInputStream extends AsynchronousAudioInputStream {
 				audioFormat = new AudioFormat(sampleBuffer.getSampleRate(), sampleBuffer.getBitsPerSample(), sampleBuffer.getChannels(), true, true);
 				saved = sampleBuffer.getData();
 			}
-			catch(IOException e) {
+			catch (IOException e) {
 				return null;
 			}
 		}

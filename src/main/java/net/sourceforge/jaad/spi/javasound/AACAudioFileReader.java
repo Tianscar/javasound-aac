@@ -1,7 +1,8 @@
 package net.sourceforge.jaad.spi.javasound;
 
+import net.sourceforge.jaad.SampleBuffer;
+import net.sourceforge.jaad.aac.Decoder;
 import net.sourceforge.jaad.adts.ADTSDemultiplexer;
-import net.sourceforge.jaad.mp4.MP4InputStream;
 import net.sourceforge.jaad.util.Utils;
 
 import javax.sound.sampled.AudioFileFormat;
@@ -9,7 +10,10 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.sound.sampled.spi.AudioFileReader;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 
@@ -21,15 +25,15 @@ public class AACAudioFileReader extends AudioFileReader {
 	public static final AudioFileFormat.Type AAC = new AudioFileFormat.Type("AAC", "aac");
 	public static final AudioFileFormat.Type MP4_AAC = new AudioFileFormat.Type("MP4 AAC", "mp4");
 
-	private static final AudioFormat.Encoding ENCODING = new AudioFormat.Encoding("AAC");
+	static final AudioFormat.Encoding AAC_ENCODING = new AudioFormat.Encoding("AAC");
 
 	@Override
 	public AudioFileFormat getAudioFileFormat(InputStream in) throws UnsupportedAudioFileException, IOException {
 		in.mark(1000);
 		try {
-			boolean[] noContainer = new boolean[1];
+			final boolean[] noContainer = new boolean[1];
 			if (isAAC(in, noContainer)) {
-				AudioFormat format = new AudioFormat(ENCODING, NOT_SPECIFIED, NOT_SPECIFIED, NOT_SPECIFIED, NOT_SPECIFIED, NOT_SPECIFIED, true);
+				AudioFormat format = new AudioFormat(AAC_ENCODING, NOT_SPECIFIED, NOT_SPECIFIED, NOT_SPECIFIED, NOT_SPECIFIED, NOT_SPECIFIED, true);
 				return new AudioFileFormat(noContainer[0] ? AAC : MP4_AAC, format, NOT_SPECIFIED);
 			}
 			else throw new UnsupportedAudioFileException();
@@ -97,7 +101,8 @@ public class AACAudioFileReader extends AudioFileReader {
 		}
 		else {
 			try {
-				new ADTSDemultiplexer(in);
+				ADTSDemultiplexer adts = new ADTSDemultiplexer(in);
+				Decoder.create(adts.getDecoderInfo()).decodeFrame(adts.readNextFrame(), new SampleBuffer());
 				noContainer[0] = true;
 				return true;
 			}
@@ -116,9 +121,9 @@ public class AACAudioFileReader extends AudioFileReader {
 			AudioFileFormat aff = getAudioFileFormat(in);
 			in.reset();
 			if (aff.getType() == AAC) return new AACAudioInputStream(in, aff.getFormat(), NOT_SPECIFIED);
-			else return new MP4AudioInputStream(MP4InputStream.open(in), aff.getFormat(), NOT_SPECIFIED);
+			else return new MP4AudioInputStream(in, aff.getFormat(), NOT_SPECIFIED);
 		}
-		catch (UnsupportedAudioFileException e) {
+		catch (IOException e) {
 			if (MP4AudioInputStream.ERROR_MESSAGE_AAC_TRACK_NOT_FOUND.equals(e.getMessage())) {
 		        throw new UnsupportedAudioFileException(MP4AudioInputStream.ERROR_MESSAGE_AAC_TRACK_NOT_FOUND);
 		    }
@@ -131,9 +136,9 @@ public class AACAudioFileReader extends AudioFileReader {
 		try {
 			AudioFileFormat aff = getAudioFileFormat(url);
 			if (aff.getType() == AAC) return new AACAudioInputStream(url.openStream(), aff.getFormat(), NOT_SPECIFIED);
-			else return new MP4AudioInputStream(MP4InputStream.open(url), aff.getFormat(), NOT_SPECIFIED);
+			else return new MP4AudioInputStream(url, aff.getFormat(), NOT_SPECIFIED);
 		}
-		catch (UnsupportedAudioFileException e) {
+		catch (IOException e) {
 			if (MP4AudioInputStream.ERROR_MESSAGE_AAC_TRACK_NOT_FOUND.equals(e.getMessage())) {
 				throw new UnsupportedAudioFileException(MP4AudioInputStream.ERROR_MESSAGE_AAC_TRACK_NOT_FOUND);
 			}
@@ -146,9 +151,9 @@ public class AACAudioFileReader extends AudioFileReader {
 		try {
 			AudioFileFormat aff = getAudioFileFormat(file);
 			if (aff.getType() == AAC) return new AACAudioInputStream(Files.newInputStream(file.toPath(), READ), aff.getFormat(), NOT_SPECIFIED);
-			else return new MP4AudioInputStream(MP4InputStream.open(new RandomAccessFile(file, "r")), aff.getFormat(), NOT_SPECIFIED);
+			else return new MP4AudioInputStream(file, aff.getFormat(), NOT_SPECIFIED);
 		}
-		catch (UnsupportedAudioFileException e) {
+		catch (IOException e) {
 			if (MP4AudioInputStream.ERROR_MESSAGE_AAC_TRACK_NOT_FOUND.equals(e.getMessage())) {
 				throw new UnsupportedAudioFileException(MP4AudioInputStream.ERROR_MESSAGE_AAC_TRACK_NOT_FOUND);
 			}

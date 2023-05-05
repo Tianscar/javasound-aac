@@ -1,12 +1,14 @@
+package net.sourceforge.jaad.test;
+
 import javax.sound.sampled.*;
 import java.io.File;
 import java.io.IOException;
 
-public class SPIReadAACTest {
+public class SPIReadExample {
 
     public static void main(String[] args) {
         try {
-            AudioInputStream in = AudioSystem.getAudioInputStream(new File("src/test/resources/fbodemo1.aac"));
+            AudioInputStream in = AudioSystem.getAudioInputStream(new File("src/test/resources/fbodemo1.m4a"));
             if (in != null) {
 
                 byte[] buffer = new byte[4096];

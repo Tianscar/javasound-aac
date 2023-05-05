@@ -120,7 +120,7 @@ public class Play {
 	}
 
     private static void decodeAAC(String in) throws Exception {
-		if(in.startsWith("http:"))
+		if(in.startsWith("http:") || in.startsWith("https:"))
 			decodeAAC(new URL(in).openStream());
 		else
 			decodeAAC(Files.newInputStream(Paths.get(in), StandardOpenOption.READ));

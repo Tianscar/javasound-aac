@@ -57,7 +57,7 @@ class CircularBuffer {
 				return -1;
 		}
 		synchronized(this) {
-			if(trigger!=null&&availableRead()<len) {
+			if (trigger != null && availableRead() < len) {
 				trigger.execute();
 			}
 			len = Math.min(availableRead(), len);
@@ -98,7 +98,7 @@ class CircularBuffer {
 					try {
 						wait();
 					}
-					catch(InterruptedException e) {
+					catch(InterruptedException ignored) {
 					}
 				}
 				int available = Math.min(availableWrite(), remaining);
@@ -117,8 +117,9 @@ class CircularBuffer {
 		}
 	}
 
-	static interface Trigger {
+	interface Trigger {
 
 		void execute();
 	}
+
 }

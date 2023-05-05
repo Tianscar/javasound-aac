@@ -1,4 +1,4 @@
-package com.tianscar.media.aac;
+package net.sourceforge.jaad.test;
 
 import net.sourceforge.jaad.mp4.MP4Container;
 import net.sourceforge.jaad.mp4.MP4InputStream;
@@ -13,7 +13,7 @@ public class MP4DurationExample {
         try {
             MP4Container mp4 = new MP4Container(MP4InputStream.open(new RandomAccessFile("src/test/resources/fbodemo1.m4a", "r")));
             Movie movie = mp4.getMovie();
-            System.out.println(movie.getDuration());
+            System.out.println("MP4 audio duration: " + movie.getDuration());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
