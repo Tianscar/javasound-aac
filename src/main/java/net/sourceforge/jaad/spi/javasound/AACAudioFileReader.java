@@ -44,7 +44,7 @@ public class AACAudioFileReader extends AudioFileReader {
 		}
 	}
 
-	private AudioFileFormat getAudioFileFormat0(InputStream in) throws UnsupportedAudioFileException, IOException {
+	private AudioFileFormat getAudioFileFormatAndClose(InputStream in) throws UnsupportedAudioFileException, IOException {
 		if (!in.markSupported()) in = new BufferedInputStream(in);
 		try {
 			return getAudioFileFormat(in);
@@ -56,12 +56,12 @@ public class AACAudioFileReader extends AudioFileReader {
 
 	@Override
 	public AudioFileFormat getAudioFileFormat(URL url) throws UnsupportedAudioFileException, IOException {
-		return getAudioFileFormat0(url.openStream());
+		return getAudioFileFormatAndClose(url.openStream());
 	}
 
 	@Override
 	public AudioFileFormat getAudioFileFormat(File file) throws UnsupportedAudioFileException, IOException {
-		return getAudioFileFormat0(Files.newInputStream(file.toPath(), READ));
+		return getAudioFileFormatAndClose(Files.newInputStream(file.toPath(), READ));
 	}
 
 	private static boolean isAAC(InputStream in, boolean[] noContainer) throws IOException {
@@ -134,9 +134,17 @@ public class AACAudioFileReader extends AudioFileReader {
 	@Override
 	public AudioInputStream getAudioInputStream(URL url) throws UnsupportedAudioFileException, IOException {
 		try {
+			InputStream inputStream = url.openStream();
+			inputStream = inputStream.markSupported() ? inputStream : new BufferedInputStream(inputStream);
 			AudioFileFormat aff = getAudioFileFormat(url);
-			if (aff.getType() == AAC) return new AACAudioInputStream(url.openStream(), aff.getFormat(), NOT_SPECIFIED);
-			else return new MP4AudioInputStream(url, aff.getFormat(), NOT_SPECIFIED);
+			if (aff.getType() == AAC) {
+				inputStream.reset();
+				return new AACAudioInputStream(inputStream, aff.getFormat(), NOT_SPECIFIED);
+			}
+			else {
+				inputStream.close();
+				return new MP4AudioInputStream(url, aff.getFormat(), NOT_SPECIFIED);
+			}
 		}
 		catch (IOException e) {
 			if (MP4AudioInputStream.ERROR_MESSAGE_AAC_TRACK_NOT_FOUND.equals(e.getMessage())) {
@@ -149,9 +157,17 @@ public class AACAudioFileReader extends AudioFileReader {
 	@Override
 	public AudioInputStream getAudioInputStream(File file) throws UnsupportedAudioFileException, IOException {
 		try {
-			AudioFileFormat aff = getAudioFileFormat(file);
-			if (aff.getType() == AAC) return new AACAudioInputStream(Files.newInputStream(file.toPath(), READ), aff.getFormat(), NOT_SPECIFIED);
-			else return new MP4AudioInputStream(file, aff.getFormat(), NOT_SPECIFIED);
+			InputStream inputStream = Files.newInputStream(file.toPath(), READ);
+			inputStream = inputStream.markSupported() ? inputStream : new BufferedInputStream(inputStream);
+			AudioFileFormat aff = getAudioFileFormat(inputStream);
+			if (aff.getType() == AAC) {
+				inputStream.reset();
+				return new AACAudioInputStream(inputStream, aff.getFormat(), NOT_SPECIFIED);
+			}
+			else {
+				inputStream.close();
+				return new MP4AudioInputStream(file, aff.getFormat(), NOT_SPECIFIED);
+			}
 		}
 		catch (IOException e) {
 			if (MP4AudioInputStream.ERROR_MESSAGE_AAC_TRACK_NOT_FOUND.equals(e.getMessage())) {

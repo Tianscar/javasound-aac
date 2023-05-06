@@ -10,7 +10,7 @@ ext {
     libraryVendorName = 'Tianscar'
 
     libraryVersionCode = 1
-    libraryVersionName = '0.8.9'
+    libraryVersionName = '0.9.0'
 
     librarySourceCompatibility = JavaVersion.VERSION_1_8
     libraryTargetCompatibility = JavaVersion.VERSION_1_8
@@ -50,8 +50,8 @@ publishing {
             from components.java
             pom {
                 name = libraryName
-                description = 'Java AAC Decoder'
-                url = 'https://github.com/Tianscar/jaad'
+                description = 'AAC decoder and MP4 demultiplexer library written completely in Java'
+                url = 'https://github.com/Tianscar/jaadec'
                 licenses {
                     license {
                         name = 'The Apache License, Version 2.0'
@@ -66,9 +66,9 @@ publishing {
                     }
                 }
                 scm {
-                    connection = 'scm:git:git@github.com/Tianscar/jaad.git'
-                    developerConnection = 'scm:git:git@github.com/Tianscar/jaad.git'
-                    url = 'https://github.com/Tianscar/jaad'
+                    connection = 'scm:git:git@github.com/Tianscar/jaadec.git'
+                    developerConnection = 'scm:git:git@github.com/Tianscar/jaadec.git'
+                    url = 'https://github.com/Tianscar/jaadec'
                 }
             }
         }

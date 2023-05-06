@@ -35,7 +35,7 @@ public class CLITest {
     @Test
     @DisplayName("Play AAC")
     public void playAAC() {
-        Play.main(new String[] {"-mp4", "src/test/resources/fbodemo1.aac"});
+        Play.main(new String[] {"src/test/resources/fbodemo1.aac"});
     }
 
 }
