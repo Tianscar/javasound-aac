@@ -43,7 +43,7 @@ If the AAC data is stored in an ADTS container, the ADTSDemultiplexer can be use
 ADTSDemultiplexer adts = new ADTSDemultiplexer(inputStream);
 byte[] decoderSpecificInfo = adts.getDecoderSpecificInfo();
 byte[] frame;
-while((frame = adts.readNextFrame())!=null) {
+while((frame = adts.readNextFrame()) != null) {
     //do something with the frame, e.g. pass it to the AAC decoder
 }
 ```
@@ -57,7 +57,7 @@ For more features of the MP4 API, see the [net.sourceforge.jaad.MP4Info](http://
 MP4Container container = new MP4Container(inputStream);
 Movie movie = container.getMovie();
 List<Track> tracks = movie.getTracks(AudioTrack.AudioCodec.AAC);
-if(tracks.size()>0) {
+if (tracks.size() > 0) {
     Track track = tracks.get(0);
     byte[] decoderSpecificInfo = track.getDecoderSpecificInfo();
     byte[] frame = track.readNextFrame();
@@ -72,9 +72,9 @@ When the jar-file is in your classpath, JAAD will be automatically registered as
 You just need to create a SourceDataLine and JAAD will be called if AAC audio data is detected.
 For more information, read: http://www.oracle.com/technetwork/java/index-jsp-140234.html
 
-### Code examples
-[Tests](/src/test/java/net/sourceforge/jaad/test/)  
-[Command-line interfaces](/src/main/java/net/sourceforge/jaad)
+### Runnable sample code
+[Tests and Examples](/src/test/java/net/sourceforge/jaad/test/)  
+[Command-line interfaces](/src/test/java/net/sourceforge/jaad/)
 
 ## License
 [Public Domain](/LICENSE)  
