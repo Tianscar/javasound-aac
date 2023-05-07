@@ -1,7 +1,7 @@
 package net.sourceforge.jaad.spi.javasound;
 
-import net.sourceforge.jaad.aac.Decoder;
 import net.sourceforge.jaad.SampleBuffer;
+import net.sourceforge.jaad.aac.Decoder;
 import net.sourceforge.jaad.mp4.MP4Container;
 import net.sourceforge.jaad.mp4.MP4InputStream;
 import net.sourceforge.jaad.mp4.api.AudioTrack;
@@ -10,11 +10,7 @@ import net.sourceforge.jaad.mp4.api.Movie;
 import net.sourceforge.jaad.mp4.api.Track;
 
 import javax.sound.sampled.AudioFormat;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
-import java.net.URL;
 import java.util.List;
 
 class MP4AudioInputStream extends AsynchronousAudioInputStream {
@@ -22,7 +18,7 @@ class MP4AudioInputStream extends AsynchronousAudioInputStream {
 	private final AudioTrack track;
 	private final Decoder decoder;
 	private final SampleBuffer sampleBuffer;
-	private AudioFormat audioFormat;
+	private AudioFormat audioFormat = null;
 	private byte[] saved;
 
 	static final String ERROR_MESSAGE_AAC_TRACK_NOT_FOUND = "movie does not contain any AAC track";
@@ -38,22 +34,6 @@ class MP4AudioInputStream extends AsynchronousAudioInputStream {
 
 		decoder = Decoder.create(track.getDecoderSpecificInfo().getData());
 		sampleBuffer = new SampleBuffer();
-	}
-
-	MP4AudioInputStream(InputStream in, AudioFormat format, long length) throws IOException {
-		this(MP4InputStream.open(in), format, length);
-	}
-
-	MP4AudioInputStream(URL in, AudioFormat format, long length) throws IOException {
-		this(MP4InputStream.open(in), format, length);
-	}
-
-	MP4AudioInputStream(RandomAccessFile in, AudioFormat format, long length) throws IOException {
-		this(MP4InputStream.open(in), format, length);
-	}
-
-	MP4AudioInputStream(File in, AudioFormat format, long length) throws IOException {
-		this(MP4InputStream.open(new RandomAccessFile(in, "r")), format, length);
 	}
 
 	@Override
