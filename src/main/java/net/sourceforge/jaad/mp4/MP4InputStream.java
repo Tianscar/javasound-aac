@@ -4,7 +4,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
@@ -16,10 +15,6 @@ import java.util.Arrays;
  */
 public abstract class MP4InputStream extends InputStream {
 
-	public static MP4InputStream open(URL in) {
-		return new MP4URLInputStream(in);
-	}
-
 	public static MP4InputStream open(InputStream in) {
 		return open(in, true);
 	}
@@ -30,10 +25,6 @@ public abstract class MP4InputStream extends InputStream {
 
 	public static MP4InputStream open(RandomAccessFile in) {
 	    return new MP4RAFInputStream(in);
-	}
-
-	public static MP4InputStream open(ClassLoader resourceLoader, String resource) {
-		return new MP4ResourceInputStream(resourceLoader, resource);
 	}
 
 	public static final String UTF8 = "UTF-8";
