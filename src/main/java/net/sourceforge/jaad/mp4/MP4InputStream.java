@@ -15,6 +15,10 @@ import java.util.Arrays;
  */
 public abstract class MP4InputStream extends InputStream {
 
+	public static MP4InputStream open(ClassLoader resourceLoader, String resource) {
+		return new MP4ResourceInputStream(resourceLoader, resource);
+	}
+
 	public static MP4InputStream open(InputStream in) {
 		return in.markSupported() ? new MP4MarkResetInputStream(in) : new MP4DefaultInputStream(in);
 	}

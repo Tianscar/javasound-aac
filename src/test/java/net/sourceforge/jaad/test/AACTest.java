@@ -10,6 +10,7 @@
 
 package net.sourceforge.jaad.test;
 
+import net.sourceforge.jaad.mp4.MP4InputStream;
 import net.sourceforge.jaad.spi.javasound.AACAudioFileReader;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -141,6 +142,15 @@ public class AACTest {
     @DisplayName("play MP4 from InputStream via SPI")
     public void playMP4InputStream() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
         InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream("fbodemo1.m4a");
+        AudioInputStream mp4Ais = AudioSystem.getAudioInputStream(stream);
+        play(mp4Ais);
+        mp4Ais.close();
+    }
+
+    @Test
+    @DisplayName("play MP4 from resource name via SPI")
+    public void playMP4Resource() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+        MP4InputStream stream = MP4InputStream.open(Thread.currentThread().getContextClassLoader(), "fbodemo1.m4a");
         AudioInputStream mp4Ais = AudioSystem.getAudioInputStream(stream);
         play(mp4Ais);
         mp4Ais.close();
