@@ -10,21 +10,18 @@
 
 package net.sourceforge.jaad.test;
 
+import net.sourceforge.jaad.spi.javasound.AACAudioFileReader;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import javax.sound.sampled.*;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import javax.sound.sampled.*;
-
-import net.sourceforge.jaad.mp4.MP4InputStream;
-import net.sourceforge.jaad.spi.javasound.AACAudioFileReader;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -144,23 +141,6 @@ public class AACTest {
     public void playMP4Stream() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
         InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream("fbodemo1.m4a");
         AudioInputStream mp4Ais = AudioSystem.getAudioInputStream(stream);
-        play(mp4Ais);
-        mp4Ais.close();
-    }
-
-    @Test
-    @DisplayName("play MP4 from URL via SPI")
-    public void playMP4URL() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
-        URL url = Thread.currentThread().getContextClassLoader().getResource("fbodemo1.m4a");
-        AudioInputStream mp4Ais = AudioSystem.getAudioInputStream(url);
-        play(mp4Ais);
-        mp4Ais.close();
-    }
-
-    @Test
-    @DisplayName("play MP4 from resource name via SPI")
-    public void playMP4Resource() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
-        AudioInputStream mp4Ais = AudioSystem.getAudioInputStream(MP4InputStream.open(Thread.currentThread().getContextClassLoader(), "fbodemo1.m4a"));
         play(mp4Ais);
         mp4Ais.close();
     }

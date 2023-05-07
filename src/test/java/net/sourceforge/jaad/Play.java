@@ -60,13 +60,9 @@ public class Play {
 
 	private static void decodeMP4(String in) throws Exception {
 		if (in.startsWith("http:") || in.startsWith("https:"))
-			decodeMP4(new URL(in));
+			decodeMP4(MP4InputStream.open(new URL(in).openStream()));
 		else
 			decodeMP4(new RandomAccessFile(in, "r"));
-	}
-
-	private static void decodeMP4(URL in) throws Exception {
-			decodeMP4(MP4InputStream.open(in));
 	}
 
 	private static void decodeMP4(RandomAccessFile in) throws Exception {

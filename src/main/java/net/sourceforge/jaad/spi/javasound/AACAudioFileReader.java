@@ -133,25 +133,8 @@ public class AACAudioFileReader extends AudioFileReader {
 
 	@Override
 	public AudioInputStream getAudioInputStream(URL url) throws UnsupportedAudioFileException, IOException {
-		try {
-			InputStream inputStream = url.openStream();
-			inputStream = inputStream.markSupported() ? inputStream : new BufferedInputStream(inputStream);
-			AudioFileFormat aff = getAudioFileFormat(inputStream);
-			if (aff.getType() == AAC) {
-				inputStream.reset();
-				return new AACAudioInputStream(inputStream, aff.getFormat(), NOT_SPECIFIED);
-			}
-			else {
-				inputStream.close();
-				return new MP4AudioInputStream(MP4InputStream.open(url), aff.getFormat(), NOT_SPECIFIED);
-			}
-		}
-		catch (IOException e) {
-			if (MP4AudioInputStream.ERROR_MESSAGE_AAC_TRACK_NOT_FOUND.equals(e.getMessage())) {
-				throw new UnsupportedAudioFileException(MP4AudioInputStream.ERROR_MESSAGE_AAC_TRACK_NOT_FOUND);
-			}
-			else throw e;
-		}
+		InputStream in = url.openStream();
+		return getAudioInputStream(in.markSupported() ? in : new BufferedInputStream(in));
 	}
 
 	@Override
