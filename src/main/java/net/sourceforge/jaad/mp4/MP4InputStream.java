@@ -16,11 +16,7 @@ import java.util.Arrays;
 public abstract class MP4InputStream extends InputStream {
 
 	public static MP4InputStream open(InputStream in) {
-		return open(in, true);
-	}
-
-	public static MP4InputStream open(InputStream in, boolean buffer) {
-	    return in.markSupported() ? new MP4MarkResetInputStream(in) : (buffer ? new MP4MarkResetInputStream(in) : new MP4DefaultInputStream(in));
+		return in.markSupported() ? new MP4MarkResetInputStream(in) : new MP4DefaultInputStream(in);
 	}
 
 	public static MP4InputStream open(RandomAccessFile in) {

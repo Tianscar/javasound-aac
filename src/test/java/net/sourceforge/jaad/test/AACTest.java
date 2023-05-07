@@ -19,6 +19,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -137,10 +138,19 @@ public class AACTest {
     }
 
     @Test
-    @DisplayName("play MP4 from stream via SPI")
-    public void playMP4Stream() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+    @DisplayName("play MP4 from InputStream via SPI")
+    public void playMP4InputStream() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
         InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream("fbodemo1.m4a");
         AudioInputStream mp4Ais = AudioSystem.getAudioInputStream(stream);
+        play(mp4Ais);
+        mp4Ais.close();
+    }
+
+    @Test
+    @DisplayName("play MP4 from URL via SPI")
+    public void playMP4URL() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+        URL url = new URL("https://github.com/Tianscar/jaadec/raw/main/src/test/resources/fbodemo1.m4a");
+        AudioInputStream mp4Ais = AudioSystem.getAudioInputStream(url);
         play(mp4Ais);
         mp4Ais.close();
     }
