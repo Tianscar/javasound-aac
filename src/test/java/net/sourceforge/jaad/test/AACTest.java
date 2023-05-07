@@ -2,25 +2,26 @@
  * Adapted from https://github.com/umjammer/JAADec/blob/0.8.9/src/test/java/net/sourceforge/jaad/spi/javasound/AacFormatConversionProviderTest.java
  *
  * Copyright (c) 2022 by Naohide Sano, All rights reserved.
+ * Copyright (c) 2023 by Karstian Lee, All rights reserved.
  *
- * Programmed by Naohide Sano
+ * Originally programmed by Naohide Sano
+ * Modifications by Karstian Lee
  */
 
 package net.sourceforge.jaad.test;
 
 import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Objects;
 
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.DataLine;
-import javax.sound.sampled.SourceDataLine;
-import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.sound.sampled.*;
 
+import net.sourceforge.jaad.mp4.MP4InputStream;
 import net.sourceforge.jaad.spi.javasound.AACAudioFileReader;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,17 +31,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AACTest {
 
-    private static final String inFile1 = "/fbodemo1.aac";
-    private static final String inFile  = "/fbodemo1.ogg";
-    private static final String inFile2 = "/fbodemo1.m4a";
-    private static final String inFile4 = "/fbodemo1_alac.m4a";
-    private static final String inFile3 = "/fbodemo1.caf";
-
     @Test
     @DisplayName("unsupported exception is able to detect in 3 ways")
-    public void test1() throws Exception {
+    public void unsupported() {
 
-        Path path = Paths.get("src/test/resources", inFile);
+        Path path = Paths.get("src/test/resources/fbodemo1.ogg");
 
         assertThrows(UnsupportedAudioFileException.class, () -> {
             // don't replace with Files#newInputStream(Path)
@@ -57,44 +52,46 @@ public class AACTest {
     }
 
     @Test
-    public void test11() throws Exception {
-
-        Path path = Paths.get(Objects.requireNonNull(AACTest.class.getResource(inFile)).toURI());
-
-        assertThrows(UnsupportedAudioFileException.class, () -> {
-            new AACAudioFileReader().getAudioInputStream(new BufferedInputStream(Files.newInputStream(path)));
-        });
-    }
-
-    @Test
     @DisplayName("movie does not contain any AAC track")
-    public void test12() throws Exception {
-
-        Path path = Paths.get(Objects.requireNonNull(AACTest.class.getResource(inFile4)).toURI());
-
+    public void tryToDecodeALAC() {
         assertThrows(UnsupportedAudioFileException.class, () -> {
-            new AACAudioFileReader().getAudioInputStream(new BufferedInputStream(Files.newInputStream(path)));
+            new AACAudioFileReader().getAudioInputStream(new File("src/test/resources/fbodemo1_alac.m4a"));
         });
     }
 
     @Test
     @DisplayName("a file consumes input stream all")
-    public void test13() throws Exception {
-
-        Path path = Paths.get(Objects.requireNonNull(AACTest.class.getResource(inFile3)).toURI());
-
+    public void tryToDecodeCAF() {
         assertThrows(UnsupportedAudioFileException.class, () -> {
-            new AACAudioFileReader().getAudioInputStream(new BufferedInputStream(Files.newInputStream(path)));
+            new AACAudioFileReader().getAudioInputStream(new File("src/test/resources/fbodemo1.caf"));
         });
     }
 
-    @Test
-    @DisplayName("aac -> pcm")
-    public void test2() throws Exception {
+    private void play(AudioInputStream pcmAis) throws LineUnavailableException, IOException {
+        DataLine.Info info = new DataLine.Info(SourceDataLine.class, pcmAis.getFormat());
+        SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
+        line.open(pcmAis.getFormat());
+        line.start();
 
-        Path path = Paths.get(Objects.requireNonNull(AACTest.class.getResource(inFile1)).toURI());
-        System.out.println("file: " + path);
-        AudioInputStream aacAis = AudioSystem.getAudioInputStream(path.toFile());
+        byte[] buf = new byte[1024];
+        while (true) {
+            int r = pcmAis.read(buf, 0, 1024);
+            if (r < 0) {
+                break;
+            }
+            line.write(buf, 0, r);
+        }
+        line.drain();
+        line.stop();
+        line.close();
+    }
+
+    @Test
+    @DisplayName("aac -> pcm, play via SPI")
+    public void convertAACToPCMAndPlay() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+        File file = new File("src/test/resources/fbodemo1.aac");
+        System.out.println("file: " + file.getAbsolutePath());
+        AudioInputStream aacAis = AudioSystem.getAudioInputStream(file);
         System.out.println("INS: " + aacAis);
         AudioFormat inAudioFormat = aacAis.getFormat();
         System.out.println("INF: " + inAudioFormat);
@@ -111,32 +108,17 @@ public class AACTest {
         AudioInputStream pcmAis = AudioSystem.getAudioInputStream(outAudioFormat, aacAis);
         System.out.println("OUTS: " + pcmAis);
         System.out.println("OUT: " + pcmAis.getFormat());
-        DataLine.Info info = new DataLine.Info(SourceDataLine.class, pcmAis.getFormat());
-        SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
-        line.open(pcmAis.getFormat());
-        line.start();
 
-
-        byte[] buf = new byte[1024];
-        while (true) {
-            int r = pcmAis.read(buf, 0, 1024);
-            if (r < 0) {
-                break;
-            }
-            line.write(buf, 0, r);
-        }
-        line.drain();
-        line.stop();
-        line.close();
+        play(pcmAis);
+        pcmAis.close();
     }
 
     @Test
-    @DisplayName("mp4 -> pcm")
-    public void test3() throws Exception {
-
-        Path path = Paths.get(Objects.requireNonNull(AACTest.class.getResource(inFile2)).toURI());
-        System.out.println("file: " + path);
-        AudioInputStream aacAis = AudioSystem.getAudioInputStream(path.toFile());
+    @DisplayName("mp4 -> pcm, play via SPI")
+    public void convertMP4ToPCMAndPlay() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+        File file = new File("src/test/resources/fbodemo1.m4a");
+        System.out.println("file: " + file.getAbsolutePath());
+        AudioInputStream aacAis = AudioSystem.getAudioInputStream(file);
         System.out.println("INS: " + aacAis);
         AudioFormat inAudioFormat = aacAis.getFormat();
         System.out.println("INF: " + inAudioFormat);
@@ -152,23 +134,35 @@ public class AACTest {
         AudioInputStream pcmAis = AudioSystem.getAudioInputStream(outAudioFormat, aacAis);
         System.out.println("OUTS: " + pcmAis);
         System.out.println("OUT: " + pcmAis.getFormat());
-        DataLine.Info info = new DataLine.Info(SourceDataLine.class, pcmAis.getFormat());
-        SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
-        line.open(pcmAis.getFormat());
-        line.start();
 
+        play(pcmAis);
+        pcmAis.close();
+    }
 
-        byte[] buf = new byte[1024];
-        while (true) {
-            int r = pcmAis.read(buf, 0, 1024);
-            if (r < 0) {
-                break;
-            }
-            line.write(buf, 0, r);
-        }
-        line.drain();
-        line.stop();
-        line.close();
+    @Test
+    @DisplayName("play MP4 from stream via SPI")
+    public void playMP4Stream() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+        InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream("fbodemo1.m4a");
+        AudioInputStream mp4Ais = AudioSystem.getAudioInputStream(stream);
+        play(mp4Ais);
+        mp4Ais.close();
+    }
+
+    @Test
+    @DisplayName("play MP4 from URL via SPI")
+    public void playMP4URL() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+        URL url = Thread.currentThread().getContextClassLoader().getResource("fbodemo1.m4a");
+        AudioInputStream mp4Ais = AudioSystem.getAudioInputStream(url);
+        play(mp4Ais);
+        mp4Ais.close();
+    }
+
+    @Test
+    @DisplayName("play MP4 from resource name via SPI")
+    public void playMP4Resource() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+        AudioInputStream mp4Ais = AudioSystem.getAudioInputStream(MP4InputStream.open(Thread.currentThread().getContextClassLoader(), "fbodemo1.m4a"));
+        play(mp4Ais);
+        mp4Ais.close();
     }
 
 }

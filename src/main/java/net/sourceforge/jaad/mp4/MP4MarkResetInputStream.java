@@ -3,7 +3,7 @@ package net.sourceforge.jaad.mp4;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class MP4SeekableInputStream extends MP4InputStream {
+public class MP4MarkResetInputStream extends MP4InputStream {
 
 	private final InputStream in;
 	private long offset;
@@ -17,7 +17,7 @@ public class MP4SeekableInputStream extends MP4InputStream {
 	 *
 	 * @exception IllegalArgumentException if in.markSupported() == false
 	 */
-	MP4SeekableInputStream(InputStream in) throws IllegalArgumentException {
+	MP4MarkResetInputStream(InputStream in) throws IllegalArgumentException {
 		if (!in.markSupported()) throw new IllegalArgumentException("in.markSupported() == false");
 		in.mark(MAX_BUFFER_SIZE);
 		this.in = in;
@@ -64,7 +64,8 @@ public class MP4SeekableInputStream extends MP4InputStream {
 		if (bytesToSkip >= 0) skipBytes(bytesToSkip);
 		else {
 			in.reset();
-			skipBytes(Math.min(pos, MAX_BUFFER_SIZE));
+			offset = 0;
+			skipBytes(pos);
 		}
 	}
 

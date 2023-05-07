@@ -7,7 +7,7 @@ public class MP4ResourceInputStream extends MP4InputStream {
 
 	private final String resource;
 	private final ClassLoader resourceLoader;
-	private boolean closed = false;
+	private volatile boolean closed = false;
 	private InputStream in = null;
 	private long offset;
 
@@ -63,13 +63,17 @@ public class MP4ResourceInputStream extends MP4InputStream {
 
 	@Override
 	public void seek(long pos) throws IOException {
-		ensureOpen();
+		checkNotClosed();
 		long bytesToSkip = pos - offset;
-		if (bytesToSkip >= 0) skipBytes(bytesToSkip);
+		if (bytesToSkip >= 0) {
+			ensureStreamAvailable();
+			skipBytes(bytesToSkip);
+		}
 		else {
 			in.close();
-			in = resourceLoader.getResourceAsStream(resource);
-			skipBytes(Math.min(pos, MAX_BUFFER_SIZE));
+			in = null;
+			ensureStreamAvailable();
+			skipBytes(pos);
 		}
 	}
 
@@ -90,9 +94,21 @@ public class MP4ResourceInputStream extends MP4InputStream {
 		in.close();
 	}
 
-	private void ensureOpen() throws IOException {
+	private void checkNotClosed() throws IOException {
 		if (closed) throw new IOException("Already closed");
-		if (in == null) in = resourceLoader.getResourceAsStream(resource);
+	}
+
+	private void ensureStreamAvailable() throws IOException {
+		if (in == null) {
+			in = resourceLoader.getResourceAsStream(resource);
+			if (in == null) throw new IOException("Couldn't read resource '" + resource + "' with ClassLoader '" + resourceLoader + "'");
+			else offset = 0;
+		}
+	}
+
+	private void ensureOpen() throws IOException {
+		checkNotClosed();
+		ensureStreamAvailable();
 	}
 
 	@Override

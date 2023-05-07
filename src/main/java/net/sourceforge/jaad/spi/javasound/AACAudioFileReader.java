@@ -3,6 +3,7 @@ package net.sourceforge.jaad.spi.javasound;
 import net.sourceforge.jaad.SampleBuffer;
 import net.sourceforge.jaad.aac.Decoder;
 import net.sourceforge.jaad.adts.ADTSDemultiplexer;
+import net.sourceforge.jaad.mp4.MP4InputStream;
 import net.sourceforge.jaad.util.Utils;
 
 import javax.sound.sampled.AudioFileFormat;
@@ -10,10 +11,7 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.sound.sampled.spi.AudioFileReader;
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
 
@@ -23,9 +21,11 @@ import static javax.sound.sampled.AudioSystem.NOT_SPECIFIED;
 public class AACAudioFileReader extends AudioFileReader {
 
 	public static final AudioFileFormat.Type AAC = new AudioFileFormat.Type("AAC", "aac");
-	public static final AudioFileFormat.Type MP4_AAC = new AudioFileFormat.Type("MP4 AAC", "mp4");
+	public static final AudioFileFormat.Type MP4_AAC = new AudioFileFormat.Type("MPEG-4 AAC", "m4a");
 
 	static final AudioFormat.Encoding AAC_ENCODING = new AudioFormat.Encoding("AAC");
+	static final AudioFormat AAC_DUMMY_FORMAT =
+			new AudioFormat(AAC_ENCODING, NOT_SPECIFIED, NOT_SPECIFIED, NOT_SPECIFIED, NOT_SPECIFIED, NOT_SPECIFIED, true);
 
 	@Override
 	public AudioFileFormat getAudioFileFormat(InputStream in) throws UnsupportedAudioFileException, IOException {
@@ -33,8 +33,7 @@ public class AACAudioFileReader extends AudioFileReader {
 		try {
 			final boolean[] noContainer = new boolean[1];
 			if (isAAC(in, noContainer)) {
-				AudioFormat format = new AudioFormat(AAC_ENCODING, NOT_SPECIFIED, NOT_SPECIFIED, NOT_SPECIFIED, NOT_SPECIFIED, NOT_SPECIFIED, true);
-				return new AudioFileFormat(noContainer[0] ? AAC : MP4_AAC, format, NOT_SPECIFIED);
+				return new AudioFileFormat(noContainer[0] ? AAC : MP4_AAC, AAC_DUMMY_FORMAT, NOT_SPECIFIED);
 			}
 			else throw new UnsupportedAudioFileException();
 		}
@@ -116,12 +115,13 @@ public class AACAudioFileReader extends AudioFileReader {
 
 	@Override
 	public AudioInputStream getAudioInputStream(InputStream in) throws UnsupportedAudioFileException, IOException, IllegalArgumentException {
-		if (!in.markSupported()) throw new IllegalArgumentException("in.markSupported() == false");
+		if (in instanceof MP4InputStream) return new MP4AudioInputStream((MP4InputStream) in, AAC_DUMMY_FORMAT, NOT_SPECIFIED);
+		else if (!in.markSupported()) throw new IllegalArgumentException("in.markSupported() == false");
 		try {
 			AudioFileFormat aff = getAudioFileFormat(in);
 			in.reset();
 			if (aff.getType() == AAC) return new AACAudioInputStream(in, aff.getFormat(), NOT_SPECIFIED);
-			else return new MP4AudioInputStream(in, aff.getFormat(), NOT_SPECIFIED);
+			else return new MP4AudioInputStream(MP4InputStream.open(in), aff.getFormat(), NOT_SPECIFIED);
 		}
 		catch (IOException e) {
 			if (MP4AudioInputStream.ERROR_MESSAGE_AAC_TRACK_NOT_FOUND.equals(e.getMessage())) {
@@ -136,14 +136,14 @@ public class AACAudioFileReader extends AudioFileReader {
 		try {
 			InputStream inputStream = url.openStream();
 			inputStream = inputStream.markSupported() ? inputStream : new BufferedInputStream(inputStream);
-			AudioFileFormat aff = getAudioFileFormat(url);
+			AudioFileFormat aff = getAudioFileFormat(inputStream);
 			if (aff.getType() == AAC) {
 				inputStream.reset();
 				return new AACAudioInputStream(inputStream, aff.getFormat(), NOT_SPECIFIED);
 			}
 			else {
 				inputStream.close();
-				return new MP4AudioInputStream(url, aff.getFormat(), NOT_SPECIFIED);
+				return new MP4AudioInputStream(MP4InputStream.open(url), aff.getFormat(), NOT_SPECIFIED);
 			}
 		}
 		catch (IOException e) {
@@ -166,7 +166,7 @@ public class AACAudioFileReader extends AudioFileReader {
 			}
 			else {
 				inputStream.close();
-				return new MP4AudioInputStream(file, aff.getFormat(), NOT_SPECIFIED);
+				return new MP4AudioInputStream(MP4InputStream.open(new RandomAccessFile(file, "r")), aff.getFormat(), NOT_SPECIFIED);
 			}
 		}
 		catch (IOException e) {
