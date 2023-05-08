@@ -326,7 +326,7 @@ public abstract class Track {
 			if(diff>0)
 				in.skipBytes(diff);
 			else if(diff<0) {
-				if(in.isSeekable())
+				if(in.seekSupported())
 					in.seek(frame.getOffset());
 				else {
 					DecoderInfo.LOGGER.log(Level.WARNING, "readNextFrame failed: frame {0} already skipped, offset:{1}, stream:{2}", new Object[]{currentFrame, frame.getOffset(), in.getOffset()});

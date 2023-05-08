@@ -3,7 +3,7 @@ package net.sourceforge.jaad.mp4;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-public class MP4RAFInputStream extends MP4InputStream {
+class MP4RAFInputStream extends MP4InputStream {
 
 	private final RandomAccessFile fin;
 
@@ -45,7 +45,7 @@ public class MP4RAFInputStream extends MP4InputStream {
 	}
 
 	@Override
-	public boolean isSeekable() {
+	public boolean seekSupported() {
 		return true;
 	}
 

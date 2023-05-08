@@ -362,7 +362,7 @@ public class BoxFactory implements BoxTypes {
 			LOGGER.log(Level.SEVERE, "box {0} overread: {1} bytes, offset: {2}", new Object[]{typeToString(type), -left, in.getOffset()});
 
 		//if mdat found and no random access, don't skip
-		if(box.getType()!=MEDIA_DATA_BOX||in.isSeekable())
+		if(box.getType()!=MEDIA_DATA_BOX||in.seekSupported())
 			in.skipBytes(left);
 
 		return box;

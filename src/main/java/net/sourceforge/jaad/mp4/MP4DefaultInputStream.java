@@ -3,7 +3,7 @@ package net.sourceforge.jaad.mp4;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class MP4DefaultInputStream extends MP4InputStream {
+class MP4DefaultInputStream extends MP4InputStream {
 
 	private final InputStream in;
 	private long offset;
@@ -60,7 +60,7 @@ public class MP4DefaultInputStream extends MP4InputStream {
 	}
 
 	@Override
-	public boolean isSeekable() {
+	public boolean seekSupported() {
 		return false;
 	}
 

@@ -3,7 +3,7 @@ package net.sourceforge.jaad.mp4;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class MP4ResourceInputStream extends MP4InputStream {
+class MP4ResourceInputStream extends MP4InputStream {
 
 	private final String resource;
 	private final ClassLoader resourceLoader;
@@ -18,10 +18,10 @@ public class MP4ResourceInputStream extends MP4InputStream {
 	 *
 	 * @param resourceLoader an <code>URL</code> to read from
 	 */
-	MP4ResourceInputStream(ClassLoader resourceLoader, String resource) {
+	MP4ResourceInputStream(ClassLoader resourceLoader, String resource) throws IOException {
 		this.resourceLoader = resourceLoader;
 		this.resource = resource;
-		offset = 0;
+		ensureStreamAvailable();
 	}
 
 	@Override
@@ -64,6 +64,7 @@ public class MP4ResourceInputStream extends MP4InputStream {
 	@Override
 	public void seek(long pos) throws IOException {
 		checkNotClosed();
+		if (pos < 0) throw new IndexOutOfBoundsException("negative position: " + pos);
 		long bytesToSkip = pos - offset;
 		if (bytesToSkip >= 0) {
 			ensureStreamAvailable();
@@ -78,7 +79,7 @@ public class MP4ResourceInputStream extends MP4InputStream {
 	}
 
 	@Override
-	public boolean isSeekable() {
+	public boolean seekSupported() {
 		return true;
 	}
 
