@@ -322,14 +322,14 @@ public abstract class Track {
 		if(hasMoreFrames()) {
 			frame = frames.get(currentFrame);
 
-			final long diff = frame.getOffset()-in.getOffset();
+			final long diff = frame.getOffset()-in.offset();
 			if(diff>0)
 				in.skipBytes(diff);
 			else if(diff<0) {
 				if(in.seekSupported())
 					in.seek(frame.getOffset());
 				else {
-					DecoderInfo.LOGGER.log(Level.WARNING, "readNextFrame failed: frame {0} already skipped, offset:{1}, stream:{2}", new Object[]{currentFrame, frame.getOffset(), in.getOffset()});
+					DecoderInfo.LOGGER.log(Level.WARNING, "readNextFrame failed: frame {0} already skipped, offset:{1}, stream:{2}", new Object[]{currentFrame, frame.getOffset(), in.offset()});
 					throw new IOException("frame already skipped and no random access");
 				}
 			}
@@ -339,7 +339,7 @@ public abstract class Track {
 				in.readBytes(b);
 			}
 			catch(EOFException e) {
-				DecoderInfo.LOGGER.log(Level.WARNING, "readNextFrame failed: tried to read {0} bytes at {1}", new Long[]{frame.getSize(), in.getOffset()});
+				DecoderInfo.LOGGER.log(Level.WARNING, "readNextFrame failed: tried to read {0} bytes at {1}", new Long[]{frame.getSize(), in.offset()});
 				throw e;
 			}
 			frame.setData(b);

@@ -35,7 +35,7 @@ class MP4RAFInputStream extends MP4InputStream {
 	}
 
 	@Override
-	public long getOffset() throws IOException {
+	public long offset() throws IOException {
 		return fin.getFilePointer();
 	}
 
