@@ -15,7 +15,7 @@ import java.util.Arrays;
  */
 public abstract class MP4InputStream extends InputStream {
 
-	public static MP4InputStream open(ClassLoader resourceLoader, String resource) {
+	public static MP4InputStream open(ClassLoader resourceLoader, String resource) throws IOException {
 		return new MP4ResourceInputStream(resourceLoader, resource);
 	}
 
@@ -294,7 +294,7 @@ public abstract class MP4InputStream extends InputStream {
 	 *
 	 * @return true if seek is available
 	 */
-	public abstract boolean isSeekable();
+	public abstract boolean seekSupported();
 
 	/**
 	 * Indicates, if the input has some data left.

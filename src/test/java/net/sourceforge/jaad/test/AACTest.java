@@ -24,6 +24,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -163,6 +164,32 @@ public class AACTest {
         AudioInputStream mp4Ais = AudioSystem.getAudioInputStream(url);
         play(mp4Ais);
         mp4Ais.close();
+    }
+
+    @Test
+    @DisplayName("list mp4 properties")
+    public void listMP4Properties() throws UnsupportedAudioFileException, IOException {
+        File file = new File("src/test/resources/fbodemo1.m4a");
+        AudioFileFormat mp4Aff = AudioSystem.getAudioFileFormat(file);
+        for (Map.Entry<String, Object> entry : mp4Aff.properties().entrySet()) {
+            System.out.println(entry.getKey() + ": " + entry.getValue());
+        }
+        for (Map.Entry<String, Object> entry : mp4Aff.getFormat().properties().entrySet()) {
+            System.out.println(entry.getKey() + ": " + entry.getValue());
+        }
+    }
+
+    @Test
+    @DisplayName("list aac properties")
+    public void listAACProperties() throws UnsupportedAudioFileException, IOException {
+        File file = new File("src/test/resources/fbodemo1.aac");
+        AudioFileFormat mp4Aff = AudioSystem.getAudioFileFormat(file);
+        for (Map.Entry<String, Object> entry : mp4Aff.properties().entrySet()) {
+            System.out.println(entry.getKey() + ": " + entry.getValue());
+        }
+        for (Map.Entry<String, Object> entry : mp4Aff.getFormat().properties().entrySet()) {
+            System.out.println(entry.getKey() + ": " + entry.getValue());
+        }
     }
 
 }

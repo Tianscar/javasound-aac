@@ -53,7 +53,7 @@ public class MP4Container {
 
 	public MP4Container(MP4InputStream in) throws IOException {
 		this.in = in;
-		boxes = new ArrayList<Box>();
+		boxes = new ArrayList<>();
 
 		readContent();
 	}
@@ -86,7 +86,7 @@ public class MP4Container {
 			else if(type==BoxTypes.MEDIA_DATA_BOX) {
 				if(moovFound)
 					break;
-				else if(!in.isSeekable())
+				else if(!in.seekSupported())
 					throw new MP4Exception("movie box at end of file, need seekable");
 			}
 		}
