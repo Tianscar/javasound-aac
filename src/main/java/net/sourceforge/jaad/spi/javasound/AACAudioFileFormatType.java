@@ -2,9 +2,9 @@ package net.sourceforge.jaad.spi.javasound;
 
 import javax.sound.sampled.AudioFileFormat;
 
-public class AACAudioFileType {
+public class AACAudioFileFormatType {
 
-    private AACAudioFileType() {
+    private AACAudioFileFormatType() {
         throw new UnsupportedOperationException();
     }
 

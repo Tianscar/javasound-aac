@@ -23,8 +23,8 @@ import java.util.Map;
 
 import static java.nio.file.StandardOpenOption.READ;
 import static javax.sound.sampled.AudioSystem.NOT_SPECIFIED;
-import static net.sourceforge.jaad.spi.javasound.AACAudioFileType.AAC;
-import static net.sourceforge.jaad.spi.javasound.AACAudioFileType.MP4_AAC;
+import static net.sourceforge.jaad.spi.javasound.AACAudioFileFormatType.AAC;
+import static net.sourceforge.jaad.spi.javasound.AACAudioFileFormatType.MP4_AAC;
 import static net.sourceforge.jaad.spi.javasound.MP4AudioInputStream.ERROR_MESSAGE_AAC_TRACK_NOT_FOUND;
 
 public class AACAudioFileReader extends AudioFileReader {
