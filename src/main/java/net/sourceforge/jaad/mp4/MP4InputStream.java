@@ -274,7 +274,7 @@ public abstract class MP4InputStream extends InputStream {
 	 * @return the current offset
 	 * @throws IOException if an I/O error occurs (only when using a RandomAccessFile)
 	 */
-	public abstract long getOffset() throws IOException;
+	public abstract long offset() throws IOException;
 
 	/**
 	 * Seeks to a specific offset in the stream. This is only possible when

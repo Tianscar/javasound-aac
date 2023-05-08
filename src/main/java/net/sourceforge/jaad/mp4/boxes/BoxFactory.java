@@ -320,7 +320,7 @@ public class BoxFactory implements BoxTypes {
 
 	public static Box parseBox(Box parent, MP4InputStream in) throws IOException {
 
-		long offset = in.getOffset();
+		long offset = in.offset();
 		long size = in.readBytes(4);
 		long type = in.readBytes(4);
 
@@ -343,7 +343,7 @@ public class BoxFactory implements BoxTypes {
 		}
 
 		LOGGER.finest(() -> typeToString(type));
-		final BoxImpl box = forType(type, in.getOffset());
+		final BoxImpl box = forType(type, in.offset());
 		box.setParams(parent, size, type, offset);
 		box.decode(in);
 
@@ -353,13 +353,13 @@ public class BoxFactory implements BoxTypes {
 			box.readChildren(in);
 
 		//check bytes left
-		final long left = (box.getOffset()+box.getSize())-in.getOffset();
+		final long left = (box.getOffset()+box.getSize())-in.offset();
 		if(left>0
 				&&!(box instanceof MediaDataBox)
 				&&!(box instanceof UnknownBox)
-				&&!(box instanceof FreeSpaceBox)) LOGGER.log(Level.INFO, "bytes left after reading box {0}: left: {1}, offset: {2}", new Object[]{typeToString(type), left, in.getOffset()});
+				&&!(box instanceof FreeSpaceBox)) LOGGER.log(Level.INFO, "bytes left after reading box {0}: left: {1}, offset: {2}", new Object[]{typeToString(type), left, in.offset()});
 		else if(left<0)
-			LOGGER.log(Level.SEVERE, "box {0} overread: {1} bytes, offset: {2}", new Object[]{typeToString(type), -left, in.getOffset()});
+			LOGGER.log(Level.SEVERE, "box {0} overread: {1} bytes, offset: {2}", new Object[]{typeToString(type), -left, in.offset()});
 
 		//if mdat found and no random access, don't skip
 		if(box.getType()!=MEDIA_DATA_BOX||in.seekSupported())
@@ -370,7 +370,7 @@ public class BoxFactory implements BoxTypes {
 
 	//TODO: remove usages
 	public static Box parseBox(MP4InputStream in, Class<? extends BoxImpl> boxClass) throws IOException {
-		final long offset = in.getOffset();
+		final long offset = in.offset();
 
 		long size = in.readBytes(4);
 		long type = in.readBytes(4);
@@ -392,7 +392,7 @@ public class BoxFactory implements BoxTypes {
 		if(box!=null) {
 			box.setParams(null, size, type, offset);
 			box.decode(in);
-			final long left = (box.getOffset()+box.getSize())-in.getOffset();
+			final long left = (box.getOffset()+box.getSize())-in.offset();
 			in.skipBytes(left);
 		}
 		return box;
