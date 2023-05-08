@@ -56,6 +56,7 @@ abstract class AsynchronousAudioInputStream extends AudioInputStream implements 
 	@Override
 	public void close() throws IOException {
 		buffer.close();
+		super.close();
 	}
 
 	@Override
