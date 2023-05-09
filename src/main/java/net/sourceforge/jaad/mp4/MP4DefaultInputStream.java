@@ -50,7 +50,7 @@ class MP4DefaultInputStream extends MP4InputStream {
 	}
 
 	@Override
-	public long offset() {
+	public long getOffset() {
 		return offset;
 	}
 

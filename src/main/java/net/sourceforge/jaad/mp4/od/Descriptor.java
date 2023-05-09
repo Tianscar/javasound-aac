@@ -49,14 +49,14 @@ public abstract class Descriptor {
 		final Descriptor desc = forTag(type);
 		desc.type = type;
 		desc.size = size;
-		desc.start = in.offset();
+		desc.start = in.getOffset();
 
 		//decode
 		desc.decode(in);
 		//skip remaining bytes
-		final long remaining = size-(in.offset()-desc.start);
+		final long remaining = size-(in.getOffset()-desc.start);
 		if(remaining>0) {
-			LOGGER.log(Level.INFO, "Descriptor: bytes left: {0}, offset: {1}", new Long[]{remaining, in.offset()});
+			LOGGER.log(Level.INFO, "Descriptor: bytes left: {0}, offset: {1}", new Long[]{remaining, in.getOffset()});
 			in.skipBytes(remaining);
 		}
 		desc.size += read; //include type and size fields
@@ -105,7 +105,7 @@ public abstract class Descriptor {
 	//children
 	protected void readChildren(MP4InputStream in) throws IOException {
 		Descriptor desc;
-		while((size-(in.offset()-start))>0) {
+		while((size-(in.getOffset()-start))>0) {
 			desc = createDescriptor(in);
 			children.add(desc);
 		}

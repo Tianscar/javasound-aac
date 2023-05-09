@@ -2,10 +2,7 @@ package net.sourceforge.jaad.adts;
 
 import net.sourceforge.jaad.aac.AudioDecoderInfo;
 
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PushbackInputStream;
+import java.io.*;
 
 public class ADTSDemultiplexer {
 
@@ -24,7 +21,7 @@ public class ADTSDemultiplexer {
 	}
 
 	public byte[] readNextFrame() throws IOException {
-		if(first)
+		if (first)
 			first = false;
 		else
 			findNextFrame();
@@ -32,6 +29,16 @@ public class ADTSDemultiplexer {
 		byte[] b = new byte[frame.getFrameLength()];
 		din.readFully(b);
 		return b;
+	}
+
+	public int skipNextFrame() throws IOException {
+		if (first)
+			first = false;
+		else
+			findNextFrame();
+		int frameLength = frame.getFrameLength();
+		if (din.skipBytes(frameLength) < frameLength) throw new EOFException();
+		return frameLength;
 	}
 
 	private boolean findNextFrame() throws IOException {
@@ -50,7 +57,7 @@ public class ADTSDemultiplexer {
 			}
 		}
 
-		if(found)
+		if (found)
 			frame = new ADTSFrame(din);
 		return found;
 	}

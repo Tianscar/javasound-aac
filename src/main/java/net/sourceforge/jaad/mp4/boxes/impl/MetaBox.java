@@ -26,7 +26,7 @@ public class MetaBox extends FullBox {
 	@Override
 	protected Box parseBox(MP4InputStream in) throws IOException {
 
-		long offset = in.offset();
+		long offset = in.getOffset();
 		long size = in.readBytes(4);
 		long type = in.readBytes(4);
 

@@ -28,7 +28,7 @@ public class BoxImpl implements Box {
 	}
 
 	protected long getLeft(MP4InputStream in) throws IOException {
-		return (offset+size)-in.offset();
+		return (offset+size)-in.getOffset();
 	}
 
 	/**
@@ -113,7 +113,7 @@ public class BoxImpl implements Box {
 
 	protected void readChildren(MP4InputStream in) throws IOException {
 		Box box;
-		while(in.offset()<(offset+size)) {
+		while(in.getOffset()<(offset+size)) {
 			box = parseBox(in);
 			children.add(box);
 		}

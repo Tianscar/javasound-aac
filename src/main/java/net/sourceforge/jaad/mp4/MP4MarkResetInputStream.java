@@ -54,7 +54,7 @@ class MP4MarkResetInputStream extends MP4InputStream {
 	}
 
 	@Override
-	public long offset() {
+	public long getOffset() {
 		return offset;
 	}
 
