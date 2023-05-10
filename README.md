@@ -1,7 +1,7 @@
 # Java Advanced Audio Decoder
 This is a fork of [DV8FromTheWorld/JAADec](https://github.com/DV8FromTheWorld/JAADec/), containing bug fixes mainly from [these forks](https://github.com/DV8FromTheWorld/JAADec/forks).
 
-JAAD is an AAC decoder and MP4 demultiplexer library written completely in Java. It uses no native libraries, is platform-independent and portable. It can read MP4 container from almost every input-stream (files, network sockets etc.) and decode AAC-LC (Low Complexity) and HE-AAC (High Efficiency/AAC+).
+This library is an AAC decoder and MP4 demultiplexer library written completely in Java. It uses no native libraries, is platform-independent and portable. It can read MP4 container from almost every input-stream (files, network sockets etc.) and decode AAC-LC (Low Complexity) and HE-AAC (High Efficiency/AAC+).
 
 ## Add the library to your project (gradle)
 1. Add the Maven Central repository (if not exist) to your build file:
@@ -16,13 +16,15 @@ repositories {
 ```groovy
 dependencies {
     ...
-    implementation 'com.tianscar.javasound:jaad:0.9.4'
+    implementation 'com.tianscar.javasound:javasound-aac:0.9.6'
 }
 ```
 
 ## Usage
 [Tests and Examples](/src/test/java/net/sourceforge/jaad/test/)  
 [Command-line interfaces](/src/test/java/net/sourceforge/jaad/)
+
+Note you need to download test audios [here](https://github.com/Tianscar/fbodemo1) and put them to /src/test/java/resources to run the test code properly!
 
 ## License
 [Public Domain](/LICENSE)  

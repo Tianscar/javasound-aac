@@ -9,8 +9,8 @@ ext {
     libraryGroupName = 'com.tianscar.javasound'
     libraryVendorName = 'Tianscar'
 
-    libraryVersionCode = 6
-    libraryVersionName = '0.9.4'
+    libraryVersionCode = 8
+    libraryVersionName = '0.9.6'
 
     librarySourceCompatibility = JavaVersion.VERSION_1_8
     libraryTargetCompatibility = JavaVersion.VERSION_1_8
@@ -51,7 +51,7 @@ publishing {
             pom {
                 name = libraryName
                 description = 'AAC decoder and MP4 demultiplexer library written completely in Java'
-                url = 'https://github.com/Tianscar/jaadec'
+                url = 'https://github.com/Tianscar/javasound-aac'
                 licenses {
                     license {
                         name = 'The Apache License, Version 2.0'
@@ -66,9 +66,9 @@ publishing {
                     }
                 }
                 scm {
-                    connection = 'scm:git:git@github.com/Tianscar/jaadec.git'
-                    developerConnection = 'scm:git:git@github.com/Tianscar/jaadec.git'
-                    url = 'https://github.com/Tianscar/jaadec'
+                    connection = 'scm:git:git@github.com/Tianscar/javasound-aac.git'
+                    developerConnection = 'scm:git:git@github.com/Tianscar/javasound-aac.git'
+                    url = 'https://github.com/Tianscar/javasound-aac'
                 }
             }
         }

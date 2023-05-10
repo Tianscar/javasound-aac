@@ -11,13 +11,13 @@ public class CLITest {
     @Test
     @DisplayName("MP4 Info")
     public void mp4info() {
-        MP4Info.main(new String[] {"-b", "src/test/resources/fbodemo1.m4a"});
+        MP4Info.main(new String[] {"-b", "src/test/resources/fbodemo1_aac.m4a"});
     }
 
     @Test
     @DisplayName("Decode MP4")
     public void decodeMP4() {
-        Main.main(new String[] {"-mp4", "src/test/resources/fbodemo1.m4a", "fbodemo1.wav"});
+        Main.main(new String[] {"-mp4", "src/test/resources/fbodemo1_aac.m4a", "fbodemo1.wav"});
     }
 
     @Test
@@ -29,7 +29,7 @@ public class CLITest {
     @Test
     @DisplayName("Play MP4")
     public void playMP4() {
-        Play.main(new String[] {"-mp4", "src/test/resources/fbodemo1.m4a"});
+        Play.main(new String[] {"-mp4", "src/test/resources/fbodemo1_aac.m4a"});
     }
 
     @Test

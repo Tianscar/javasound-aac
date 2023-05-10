@@ -11,7 +11,7 @@ public class MP4DurationExample {
 
     public static void main(String[] args) {
         try {
-            MP4Container mp4 = new MP4Container(MP4InputStream.open(new RandomAccessFile("src/test/resources/fbodemo1.m4a", "r")));
+            MP4Container mp4 = new MP4Container(MP4InputStream.open(new RandomAccessFile("src/test/resources/fbodemo1_aac.m4a", "r")));
             Movie movie = mp4.getMovie();
             System.out.println("MP4 audio duration: " + movie.getDuration());
         } catch (IOException e) {
