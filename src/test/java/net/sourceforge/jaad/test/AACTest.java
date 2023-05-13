@@ -35,7 +35,7 @@ public class AACTest {
     @DisplayName("unsupported exception is able to detect in 3 ways")
     public void unsupported() {
 
-        Path path = Paths.get("src/test/resources/fbodemo1.ogg");
+        Path path = Paths.get("src/test/resources/fbodemo1_vorbis.ogg");
 
         assertThrows(UnsupportedAudioFileException.class, () -> {
             // don't replace with Files#newInputStream(Path)
