@@ -8,6 +8,8 @@ import javax.sound.sampled.AudioInputStream;
 
 abstract class AsynchronousAudioInputStream extends AudioInputStream implements Trigger {
 
+	private static final int MAX_SKIP_BUFFER_SIZE = 2048;
+
 	private byte[] singleByte;
 	protected final CircularBuffer buffer;
 
@@ -39,13 +41,26 @@ abstract class AsynchronousAudioInputStream extends AudioInputStream implements 
 	}
 
 	@Override
-	public long skip(long len) throws IOException {
-		int l = (int) len;
-		final byte[] b = new byte[l];
-		while (l > 0) {
-			l -= buffer.read(b, 0, l);
+	public long skip(long n) throws IOException {
+
+		long remaining = n;
+		int nr;
+
+		if (n <= 0) {
+			return 0;
 		}
-		return len;
+
+		int size = (int) Math.min(MAX_SKIP_BUFFER_SIZE, remaining);
+		byte[] skipBuffer = new byte[size];
+		while (remaining > 0) {
+			nr = read(skipBuffer, 0, (int)Math.min(size, remaining));
+			if (nr < 0) {
+				break;
+			}
+			remaining -= nr;
+		}
+
+		return n - remaining;
 	}
 
 	@Override
