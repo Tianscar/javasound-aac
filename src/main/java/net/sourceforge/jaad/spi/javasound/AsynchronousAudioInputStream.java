@@ -49,6 +49,7 @@ abstract class AsynchronousAudioInputStream extends AudioInputStream implements 
 	 * @see #read
 	 * @see #available
 	 */
+	@Override
 	public long skip(long n) throws IOException {
 
 		// make sure not to skip fractional frames
