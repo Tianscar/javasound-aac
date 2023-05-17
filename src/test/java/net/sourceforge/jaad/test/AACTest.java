@@ -10,7 +10,7 @@
 
 package net.sourceforge.jaad.test;
 
-import net.sourceforge.jaad.mp4.MP4InputStream;
+import com.tianscar.javasound.sampled.AudioResourceLoader;
 import net.sourceforge.jaad.spi.javasound.AACAudioFileReader;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -55,7 +55,7 @@ public class AACTest {
     @DisplayName("movie does not contain any AAC track")
     public void tryToDecodeALAC() {
         assertThrows(UnsupportedAudioFileException.class, () -> {
-            new AACAudioFileReader().getAudioInputStream(new File("src/test/resources/fbodemo1_alac.m4a"));
+            new AACAudioFileReader().getAudioInputStream(new File("src/test/resources/fbodemo1_aac.m4a"));
         });
     }
 
@@ -65,9 +65,9 @@ public class AACTest {
         line.open(pcmAis.getFormat());
         line.start();
 
-        byte[] buf = new byte[1024];
+        byte[] buf = new byte[128 * 6];
         while (true) {
-            int r = pcmAis.read(buf, 0, 1024);
+            int r = pcmAis.read(buf, 0, buf.length);
             if (r < 0) {
                 break;
             }
@@ -78,28 +78,53 @@ public class AACTest {
         line.close();
     }
 
+    private AudioInputStream decode(AudioInputStream mp4Ais) {
+        AudioFormat inAudioFormat = mp4Ais.getFormat();
+        AudioFormat decodedAudioFormat = new AudioFormat(
+                AudioSystem.NOT_SPECIFIED,
+                inAudioFormat.getSampleSizeInBits(),
+                inAudioFormat.getChannels(),
+                true,
+                inAudioFormat.isBigEndian());
+        return AudioSystem.getAudioInputStream(decodedAudioFormat, mp4Ais);
+    }
+
     @Test
     @DisplayName("aac -> pcm, play via SPI")
     public void convertAACToPCMAndPlay() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
         File file = new File("src/test/resources/fbodemo1.aac");
-        System.out.println("file: " + file.getAbsolutePath());
+        System.out.println("in file: " + file.getAbsolutePath());
         AudioInputStream aacAis = AudioSystem.getAudioInputStream(file);
-        System.out.println("INS: " + aacAis);
+        System.out.println("in stream: " + aacAis);
         AudioFormat inAudioFormat = aacAis.getFormat();
-        System.out.println("INF: " + inAudioFormat);
-        System.out.println(inAudioFormat);
-        AudioFormat outAudioFormat = new AudioFormat(
-            inAudioFormat.getSampleRate(),
-            16,
-            inAudioFormat.getChannels(),
-            true,
-            false);
+        System.out.println("in audio format: " + inAudioFormat);
 
-        assertTrue(AudioSystem.isConversionSupported(outAudioFormat, inAudioFormat));
+        AudioFormat decodedAudioFormat = new AudioFormat(
+                AudioSystem.NOT_SPECIFIED,
+                inAudioFormat.getSampleSizeInBits(),
+                inAudioFormat.getChannels(),
+                true,
+                inAudioFormat.isBigEndian());
+
+        assertTrue(AudioSystem.isConversionSupported(decodedAudioFormat, inAudioFormat));
+
+        aacAis = AudioSystem.getAudioInputStream(decodedAudioFormat, aacAis);
+        decodedAudioFormat = aacAis.getFormat();
+        System.out.println("decoded in stream: " + aacAis);
+        System.out.println("decoded audio format: " + decodedAudioFormat);
+
+        AudioFormat outAudioFormat = new AudioFormat(
+                decodedAudioFormat.getSampleRate(),
+                16,
+                decodedAudioFormat.getChannels(),
+                true,
+                false);
+
+        assertTrue(AudioSystem.isConversionSupported(outAudioFormat, decodedAudioFormat));
 
         AudioInputStream pcmAis = AudioSystem.getAudioInputStream(outAudioFormat, aacAis);
-        System.out.println("OUTS: " + pcmAis);
-        System.out.println("OUT: " + pcmAis.getFormat());
+        System.out.println("out stream: " + pcmAis);
+        System.out.println("out audio format: " + pcmAis.getFormat());
 
         play(pcmAis);
         pcmAis.close();
@@ -109,23 +134,38 @@ public class AACTest {
     @DisplayName("mp4 -> pcm, play via SPI")
     public void convertMP4ToPCMAndPlay() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
         File file = new File("src/test/resources/fbodemo1_aac.m4a");
-        System.out.println("file: " + file.getAbsolutePath());
+        System.out.println("in file: " + file.getAbsolutePath());
         AudioInputStream aacAis = AudioSystem.getAudioInputStream(file);
-        System.out.println("INS: " + aacAis);
+        System.out.println("in stream: " + aacAis);
         AudioFormat inAudioFormat = aacAis.getFormat();
-        System.out.println("INF: " + inAudioFormat);
-        AudioFormat outAudioFormat = new AudioFormat(
-            inAudioFormat.getSampleRate(),
-            16,
-            inAudioFormat.getChannels(),
-            true,
-            false);
+        System.out.println("in audio format: " + inAudioFormat);
 
-        assertTrue(AudioSystem.isConversionSupported(outAudioFormat, inAudioFormat));
+        AudioFormat decodedAudioFormat = new AudioFormat(
+                AudioSystem.NOT_SPECIFIED,
+                inAudioFormat.getSampleSizeInBits(),
+                inAudioFormat.getChannels(),
+                true,
+                inAudioFormat.isBigEndian());
+
+        assertTrue(AudioSystem.isConversionSupported(decodedAudioFormat, inAudioFormat));
+
+        aacAis = AudioSystem.getAudioInputStream(decodedAudioFormat, aacAis);
+        decodedAudioFormat = aacAis.getFormat();
+        System.out.println("decoded in stream: " + aacAis);
+        System.out.println("decoded audio format: " + decodedAudioFormat);
+
+        AudioFormat outAudioFormat = new AudioFormat(
+                decodedAudioFormat.getSampleRate(),
+                16,
+                decodedAudioFormat.getChannels(),
+                true,
+                false);
+
+        assertTrue(AudioSystem.isConversionSupported(outAudioFormat, decodedAudioFormat));
 
         AudioInputStream pcmAis = AudioSystem.getAudioInputStream(outAudioFormat, aacAis);
-        System.out.println("OUTS: " + pcmAis);
-        System.out.println("OUT: " + pcmAis.getFormat());
+        System.out.println("out stream: " + pcmAis);
+        System.out.println("out audio format: " + pcmAis.getFormat());
 
         play(pcmAis);
         pcmAis.close();
@@ -136,6 +176,7 @@ public class AACTest {
     public void playMP4InputStream() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
         InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream("fbodemo1_aac.m4a");
         AudioInputStream mp4Ais = AudioSystem.getAudioInputStream(stream);
+        mp4Ais = decode(mp4Ais);
         play(mp4Ais);
         mp4Ais.close();
     }
@@ -143,8 +184,8 @@ public class AACTest {
     @Test
     @DisplayName("play MP4 from resource name via SPI")
     public void playMP4Resource() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
-        MP4InputStream stream = MP4InputStream.open(Thread.currentThread().getContextClassLoader(), "fbodemo1_aac.m4a");
-        AudioInputStream mp4Ais = AudioSystem.getAudioInputStream(stream);
+        AudioInputStream mp4Ais = AudioResourceLoader.getAudioInputStream(Thread.currentThread().getContextClassLoader(), "fbodemo1_aac.m4a");
+        mp4Ais = decode(mp4Ais);
         play(mp4Ais);
         mp4Ais.close();
     }
@@ -154,6 +195,7 @@ public class AACTest {
     public void playMP4URL() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
         URL url = new URL("https://github.com/Tianscar/javasound-aac/raw/main/src/test/resources/fbodemo1_aac.m4a");
         AudioInputStream mp4Ais = AudioSystem.getAudioInputStream(url);
+        mp4Ais = decode(mp4Ais);
         play(mp4Ais);
         mp4Ais.close();
     }

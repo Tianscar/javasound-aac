@@ -1,124 +1,56 @@
 package net.sourceforge.jaad.spi.javasound;
 
+import com.tianscar.javasound.sampled.spi.AudioResourceReader;
 import net.sourceforge.jaad.SampleBuffer;
 import net.sourceforge.jaad.aac.Decoder;
-import net.sourceforge.jaad.aac.DecoderConfig;
 import net.sourceforge.jaad.adts.ADTSDemultiplexer;
 import net.sourceforge.jaad.mp4.MP4Container;
 import net.sourceforge.jaad.mp4.MP4Exception;
 import net.sourceforge.jaad.mp4.MP4InputStream;
-import net.sourceforge.jaad.mp4.api.*;
+import net.sourceforge.jaad.mp4.api.AudioTrack;
+import net.sourceforge.jaad.mp4.api.Frame;
+import net.sourceforge.jaad.mp4.api.Movie;
+import net.sourceforge.jaad.mp4.api.Track;
 
 import javax.sound.sampled.AudioFileFormat;
-import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.sound.sampled.spi.AudioFileReader;
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 import static java.nio.file.StandardOpenOption.READ;
 import static javax.sound.sampled.AudioSystem.NOT_SPECIFIED;
-import static net.sourceforge.jaad.spi.javasound.AACAudioFileFormatType.AAC;
-import static net.sourceforge.jaad.spi.javasound.AACAudioFileFormatType.MP4_AAC;
-import static net.sourceforge.jaad.spi.javasound.MP4AudioInputStream.ERROR_MESSAGE_AAC_TRACK_NOT_FOUND;
 
-public class AACAudioFileReader extends AudioFileReader {
+public class AACAudioFileReader extends AudioFileReader implements AudioResourceReader {
 
-	private static AACAudioInputStream decodeAACAudioInputStream(InputStream in,
-																 Map<String, Object> fileProperties,
-																 Map<String, Object> formatProperties) throws IOException {
-		return (AACAudioInputStream) decodeAACAudio(in, fileProperties, formatProperties, false);
+	private static AACAudioInputStream decodeAACAudioInputStream(InputStream in) throws IOException {
+		return (AACAudioInputStream) decodeAACAudio(in, false);
 	}
 
-	private static AudioFileFormat decodeAACAudioFileFormat(InputStream in,
-															Map<String, Object> fileProperties,
-															Map<String, Object> formatProperties) throws IOException {
-		return (AudioFileFormat) decodeAACAudio(in, fileProperties, formatProperties, true);
+	private static AudioFileFormat decodeAACAudioFileFormat(InputStream in) throws IOException {
+		return (AudioFileFormat) decodeAACAudio(in, true);
 	}
 
-	private static Object decodeAACAudio(InputStream in,
-										 Map<String, Object> fileProperties,
-										 Map<String, Object> formatProperties,
-										 boolean fileFormat) throws IOException {
+	private static Object decodeAACAudio(InputStream in, boolean fileFormat) throws IOException {
 		ADTSDemultiplexer adts = new ADTSDemultiplexer(in);
 		Decoder decoder = Decoder.create(adts.getDecoderInfo());
 		SampleBuffer sampleBuffer = new SampleBuffer(decoder.getAudioFormat());
-		dumpDecoderConfigProperties(decoder.getConfig(), formatProperties);
-		AudioFormat audioFormat = dumpSampleBufferProperties(sampleBuffer, formatProperties);
-		if (fileFormat) {
-			int frames = 1; // already read 1 frame when new ADTSDemultiplexer(in)
-			try {
-				while (true) {
-					adts.skipNextFrame();
-					frames ++;
-				}
-			}
-			catch (EOFException ignored) {}
-			final double lengthInSeconds = frames * (double) decoder.getConfig().getSampleLength() / (double) decoder.getConfig().getSampleFrequency().getFrequency();
-			fileProperties.put("duration", (long) (lengthInSeconds * 1_000_000L));
-			return new AudioFileFormat(AAC, audioFormat, NOT_SPECIFIED, fileProperties);
-		}
-		else return new AACAudioInputStream(adts, decoder, sampleBuffer, in, audioFormat, NOT_SPECIFIED);
+		if (fileFormat) return new AACAudioFileFormat(adts, decoder.getConfig(), sampleBuffer);
+		else return new AACAudioInputStream(adts, decoder, sampleBuffer, in, NOT_SPECIFIED);
 	}
 
-	private static void dumpDecoderConfigProperties(DecoderConfig config, Map<String, Object> formatProperties) {
-		formatProperties.put("aac.samplelength", config.getSampleLength());
-		formatProperties.put("aac.framelength", config.getFrameLength());
-		formatProperties.put("aac.channelcount", config.getChannelCount());
-		formatProperties.put("aac.corecoderdelay", config.getCoreCoderDelay());
-
-		formatProperties.put("aac.dependsoncoreorder", config.isDependsOnCoreCoder());
-		formatProperties.put("aac.ps", config.isPSEnabled());
-		formatProperties.put("aac.sbr", config.isSBREnabled());
-		formatProperties.put("aac.smallframe", config.isSmallFrameUsed());
-		formatProperties.put("aac.scalefactorresilience", config.isScalefactorResilienceUsed());
-		formatProperties.put("aac.sectiondataresilience", config.isSectionDataResilienceUsed());
-		formatProperties.put("aac.spectraldataresilience", config.isSpectralDataResilienceUsed());
+	private static MP4AudioInputStream decodeMP4AudioInputStream(MP4InputStream in) throws IOException, UnsupportedAudioFileException {
+		return (MP4AudioInputStream) decodeMP4Audio(in, false);
 	}
 
-	private static AudioFormat dumpSampleBufferProperties(SampleBuffer sampleBuffer, Map<String, Object> formatProperties) {
-		double bitrate = sampleBuffer.getBitrate();
-		int sampleRate = sampleBuffer.getSampleRate();
-		int bitsPerSample = sampleBuffer.getBitsPerSample();
-		int channels = sampleBuffer.getChannels();
-		boolean bigEndian = sampleBuffer.isBigEndian();
-		formatProperties.put("bitrate", bitrate);
-		formatProperties.put("samplerate", sampleRate);
-		formatProperties.put("samplesizeinbits", bitsPerSample);
-		formatProperties.put("channels", channels);
-		formatProperties.put("bigendian", bigEndian);
-		return new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, sampleRate, bitsPerSample,
-				channels, frameSize(channels, bitsPerSample), sampleRate, bigEndian, formatProperties);
+	private static AudioFileFormat decodeMP4AudioFileFormat(MP4InputStream in) throws IOException, UnsupportedAudioFileException {
+		return (AudioFileFormat) decodeMP4Audio(in, true);
 	}
 
-	private static int frameSize(int channels, int sampleSizeInBits) {
-		return (channels == NOT_SPECIFIED || sampleSizeInBits == NOT_SPECIFIED)?
-				NOT_SPECIFIED:
-				((sampleSizeInBits + 7) / 8) * channels;
-	}
-
-	private static MP4AudioInputStream decodeMP4AudioInputStream(MP4InputStream in,
-																 Map<String, Object> fileProperties,
-																 Map<String, Object> formatProperties) throws IOException, UnsupportedAudioFileException {
-		return (MP4AudioInputStream) decodeMP4Audio(in, fileProperties, formatProperties, false);
-	}
-
-	private static AudioFileFormat decodeMP4AudioFileFormat(MP4InputStream in,
-															Map<String, Object> fileProperties,
-															Map<String, Object> formatProperties) throws IOException, UnsupportedAudioFileException {
-		return (AudioFileFormat) decodeMP4Audio(in, fileProperties, formatProperties, true);
-	}
-
-	private static Object decodeMP4Audio(MP4InputStream in,
-										 Map<String, Object> fileProperties,
-										 Map<String, Object> formatProperties,
-										 boolean fileFormat) throws IOException, UnsupportedAudioFileException {
+	private static Object decodeMP4Audio(MP4InputStream in, boolean fileFormat) throws IOException, UnsupportedAudioFileException {
 		MP4Container mp4;
 		try {
 			mp4 = new MP4Container(in);
@@ -127,19 +59,8 @@ public class AACAudioFileReader extends AudioFileReader {
 			throw new UnsupportedAudioFileException(e.getMessage());
 		}
 		Movie movie = mp4.getMovie();
-		fileProperties.put("duration", (long) (movie.getDuration() * 1_000_000L));
-		fileProperties.put("mp4.creationtime", movie.getCreationTime());
-		fileProperties.put("mp4.modificationtime", movie.getModificationTime());
-		fileProperties.put("mp4.containsmetadata", movie.containsMetaData());
-		if (movie.containsMetaData()) {
-			MetaData metaData = movie.getMetaData();
-			for (Map.Entry<MetaData.Field<?>, Object> entry : metaData.getAll().entrySet()) {
-				fileProperties.put(entry.getKey()
-						.getName().replaceAll(" ", "").toLowerCase(Locale.ROOT), entry.getValue());
-			}
-		}
 		List<Track> tracks = movie.getTracks(AudioTrack.AudioCodec.AAC);
-		if (tracks.isEmpty()) throw new IOException(ERROR_MESSAGE_AAC_TRACK_NOT_FOUND);
+		if (tracks.isEmpty()) throw new IOException(Utils.ERROR_MESSAGE_AAC_TRACK_NOT_FOUND);
 		AudioTrack track = (AudioTrack) tracks.get(0);
 		Decoder decoder = Decoder.create(track.getDecoderSpecificInfo().getData());
 		if (!track.hasMoreFrames()) throw new IOException("no valid frame exists");
@@ -147,10 +68,8 @@ public class AACAudioFileReader extends AudioFileReader {
 		if (frame == null) throw new IOException("no valid frame exists");
 		SampleBuffer sampleBuffer = new SampleBuffer();
 		decoder.decodeFrame(frame.getData(), sampleBuffer);
-		dumpDecoderConfigProperties(decoder.getConfig(), formatProperties);
-		AudioFormat audioFormat = dumpSampleBufferProperties(sampleBuffer, formatProperties);
-		if (fileFormat) return new AudioFileFormat(MP4_AAC, audioFormat, NOT_SPECIFIED, fileProperties);
-		else return new MP4AudioInputStream(track, decoder, sampleBuffer, in, audioFormat, NOT_SPECIFIED);
+		if (fileFormat) return new AACAudioFileFormat(movie, decoder.getConfig(), sampleBuffer);
+		else return new MP4AudioInputStream(track, decoder, sampleBuffer, in, NOT_SPECIFIED);
 	}
 
 	@Override
@@ -159,18 +78,18 @@ public class AACAudioFileReader extends AudioFileReader {
 			((MP4InputStream) in).seek(0);
 			if (isMP4(in)) {
 				((MP4InputStream) in).seek(0);
-				return decodeMP4AudioFileFormat((MP4InputStream) in, new HashMap<>(), new HashMap<>());
+				return decodeMP4AudioFileFormat((MP4InputStream) in);
 			}
 		}
 		in.mark(1000);
 		try {
 			if (isMP4(in)) {
 				in.reset();
-				return decodeMP4AudioFileFormat(MP4InputStream.open(in), new HashMap<>(), new HashMap<>());
+				return decodeMP4AudioFileFormat(MP4InputStream.open(in));
 			}
 			else {
 				try {
-					return decodeAACAudioFileFormat(in, new HashMap<>(), new HashMap<>());
+					return decodeAACAudioFileFormat(in);
 				}
 				catch (IOException e) {
 					throw new UnsupportedAudioFileException();
@@ -248,17 +167,17 @@ public class AACAudioFileReader extends AudioFileReader {
 		try {
 			if (in instanceof MP4InputStream) {
 				((MP4InputStream) in).seek(0);
-				return decodeMP4AudioInputStream((MP4InputStream) in, new HashMap<>(), new HashMap<>());
+				return decodeMP4AudioInputStream((MP4InputStream) in);
 			}
 			in.mark(1000);
 			try {
 				if (isMP4(in)) {
 					in.reset();
-					return decodeMP4AudioInputStream(MP4InputStream.open(in), new HashMap<>(), new HashMap<>());
+					return decodeMP4AudioInputStream(MP4InputStream.open(in));
 				}
 				else {
 					try {
-						return decodeAACAudioInputStream(in, new HashMap<>(), new HashMap<>());
+						return decodeAACAudioInputStream(in);
 					}
 					catch (IOException e) {
 						throw new UnsupportedAudioFileException();
@@ -271,8 +190,8 @@ public class AACAudioFileReader extends AudioFileReader {
 			}
 		}
 		catch (IOException e) {
-			if (MP4AudioInputStream.ERROR_MESSAGE_AAC_TRACK_NOT_FOUND.equals(e.getMessage())) {
-		        throw new UnsupportedAudioFileException(MP4AudioInputStream.ERROR_MESSAGE_AAC_TRACK_NOT_FOUND);
+			if (Utils.ERROR_MESSAGE_AAC_TRACK_NOT_FOUND.equals(e.getMessage())) {
+		        throw new UnsupportedAudioFileException(Utils.ERROR_MESSAGE_AAC_TRACK_NOT_FOUND);
 		    }
 			else throw e;
 		}
@@ -296,11 +215,11 @@ public class AACAudioFileReader extends AudioFileReader {
 			InputStream in = Files.newInputStream(file.toPath(), READ);
 			if (isMP4(in)) {
 				in.close();
-				return decodeMP4AudioInputStream(MP4InputStream.open(new RandomAccessFile(file, "r")), new HashMap<>(), new HashMap<>());
+				return decodeMP4AudioInputStream(MP4InputStream.open(new RandomAccessFile(file, "r")));
 			}
 			else {
 				try {
-					return decodeAACAudioInputStream(in, new HashMap<>(), new HashMap<>());
+					return decodeAACAudioInputStream(in);
 				}
 				catch (IOException e) {
 					throw new UnsupportedAudioFileException();
@@ -308,8 +227,41 @@ public class AACAudioFileReader extends AudioFileReader {
 			}
 		}
 		catch (IOException e) {
-			if (MP4AudioInputStream.ERROR_MESSAGE_AAC_TRACK_NOT_FOUND.equals(e.getMessage())) {
-				throw new UnsupportedAudioFileException(MP4AudioInputStream.ERROR_MESSAGE_AAC_TRACK_NOT_FOUND);
+			if (Utils.ERROR_MESSAGE_AAC_TRACK_NOT_FOUND.equals(e.getMessage())) {
+				throw new UnsupportedAudioFileException(Utils.ERROR_MESSAGE_AAC_TRACK_NOT_FOUND);
+			}
+			else throw e;
+		}
+	}
+
+	@Override
+	public AudioFileFormat getAudioFileFormat(ClassLoader resourceLoader, String name) throws UnsupportedAudioFileException, IOException {
+		InputStream in = resourceLoader.getResourceAsStream(name);
+		if (in == null) throw new IOException("Cannot load resource \"" + name + "\" with ClassLoader \"" + resourceLoader + "\"");
+		else return getAudioFileFormatAndClose(in);
+	}
+
+	@Override
+	public AudioInputStream getAudioInputStream(ClassLoader resourceLoader, String name) throws UnsupportedAudioFileException, IOException {
+		try {
+			InputStream in = resourceLoader.getResourceAsStream(name);
+			if (in == null) throw new IOException("Cannot load resource \"" + name + "\" with ClassLoader \"" + resourceLoader + "\"");
+			else if (isMP4(in)) {
+				in.close();
+				return decodeMP4AudioInputStream(MP4InputStream.open(resourceLoader, name));
+			}
+			else {
+				try {
+					return decodeAACAudioInputStream(in);
+				}
+				catch (IOException e) {
+					throw new UnsupportedAudioFileException();
+				}
+			}
+		}
+		catch (IOException e) {
+			if (Utils.ERROR_MESSAGE_AAC_TRACK_NOT_FOUND.equals(e.getMessage())) {
+				throw new UnsupportedAudioFileException(Utils.ERROR_MESSAGE_AAC_TRACK_NOT_FOUND);
 			}
 			else throw e;
 		}
