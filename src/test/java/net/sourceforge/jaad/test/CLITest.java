@@ -1,8 +1,8 @@
 package net.sourceforge.jaad.test;
 
-import net.sourceforge.jaad.MP4Info;
-import net.sourceforge.jaad.Main;
-import net.sourceforge.jaad.Play;
+import net.sourceforge.jaad.cli.MP4Info;
+import net.sourceforge.jaad.cli.Main;
+import net.sourceforge.jaad.cli.Play;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

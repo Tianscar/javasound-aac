@@ -31,16 +31,6 @@ public class ADTSDemultiplexer {
 		return b;
 	}
 
-	public int skipNextFrame() throws IOException {
-		if (first)
-			first = false;
-		else
-			findNextFrame();
-		int frameLength = frame.getFrameLength();
-		if (din.skipBytes(frameLength) < frameLength) throw new EOFException();
-		return frameLength;
-	}
-
 	private boolean findNextFrame() throws IOException {
 		//find next ADTS ID
 		boolean found = false;

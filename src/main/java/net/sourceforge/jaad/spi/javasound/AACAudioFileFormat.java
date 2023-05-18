@@ -75,7 +75,7 @@ public class AACAudioFileFormat extends AudioFileFormat {
         int frames = 1; // already read 1 frame when new ADTSDemultiplexer(in)
         try {
             while (true) {
-                adts.skipNextFrame();
+                adts.readNextFrame();
                 frames ++;
             }
         }

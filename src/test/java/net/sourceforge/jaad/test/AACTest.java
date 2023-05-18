@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -216,14 +217,27 @@ public class AACTest {
     @Test
     @DisplayName("list aac properties")
     public void listAACProperties() throws UnsupportedAudioFileException, IOException {
-        File file = new File("src/test/resources/fbodemo1.aac");
-        AudioFileFormat mp4Aff = AudioSystem.getAudioFileFormat(file);
-        for (Map.Entry<String, Object> entry : mp4Aff.properties().entrySet()) {
+        InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream("fbodemo1.aac");
+        AudioFileFormat aacAff = AudioSystem.getAudioFileFormat(stream);
+        for (Map.Entry<String, Object> entry : aacAff.properties().entrySet()) {
             System.out.println(entry.getKey() + ": " + entry.getValue());
         }
-        for (Map.Entry<String, Object> entry : mp4Aff.getFormat().properties().entrySet()) {
+        for (Map.Entry<String, Object> entry : aacAff.getFormat().properties().entrySet()) {
             System.out.println(entry.getKey() + ": " + entry.getValue());
         }
+    }
+
+    @Test
+    @DisplayName("can play wav")
+    public void checkCanPlayWAV() throws IOException, UnsupportedAudioFileException, LineUnavailableException {
+        InputStream stream = Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResourceAsStream("fbodemo1.wav"));
+        stream.mark(Integer.MAX_VALUE);
+        AudioFileFormat audioFileFormat = AudioSystem.getAudioFileFormat(stream);
+        System.out.println(audioFileFormat);
+        stream.reset();
+        AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(stream);
+        play(audioInputStream);
+        audioInputStream.close();
     }
 
 }

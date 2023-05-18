@@ -1,4 +1,4 @@
-package net.sourceforge.jaad;
+package net.sourceforge.jaad.cli;
 
 import java.io.DataInputStream;
 import java.io.PrintStream;
@@ -7,6 +7,8 @@ import java.net.URI;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.SourceDataLine;
+
+import net.sourceforge.jaad.SampleBuffer;
 import net.sourceforge.jaad.aac.Decoder;
 import net.sourceforge.jaad.adts.ADTSDemultiplexer;
 
@@ -18,7 +20,7 @@ import net.sourceforge.jaad.adts.ADTSDemultiplexer;
  */
 public class Radio {
 
-	private static final String USAGE = "usage:\nnet.sourceforge.jaad.Radio <url>";
+	private static final String USAGE = "usage:\nnet.sourceforge.jaad.cli.Radio <url>";
 
 	public static void main(String[] args) {
 		try {

@@ -20,7 +20,7 @@ public class AACDurationExample {
             long time = System.currentTimeMillis();
             try {
                 while (true) {
-                    adts.skipNextFrame();
+                    adts.readNextFrame();
                     frames ++;
                 }
             }

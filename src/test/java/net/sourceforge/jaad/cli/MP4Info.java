@@ -1,4 +1,4 @@
-package net.sourceforge.jaad;
+package net.sourceforge.jaad.cli;
 
 import net.sourceforge.jaad.mp4.MP4Container;
 import net.sourceforge.jaad.mp4.MP4InputStream;
@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class MP4Info {
 
-	private static final String USAGE = "usage:\nnet.sourceforge.jaad.MP4Info [options] <infile>\n\n\t-b\talso print all boxes";
+	private static final String USAGE = "usage:\nnet.sourceforge.jaad.cli.MP4Info [options] <infile>\n\n\t-b\talso print all boxes";
 
 	public static void main(String[] args) {
 		try {

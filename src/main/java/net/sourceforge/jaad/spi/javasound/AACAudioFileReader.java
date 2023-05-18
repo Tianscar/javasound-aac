@@ -105,40 +105,7 @@ public class AACAudioFileReader extends AudioFileReader implements AudioResource
 	private static boolean isMP4(InputStream in) throws IOException {
 		final byte[] head = new byte[12];
 		net.sourceforge.jaad.util.Utils.readNBytes(in, head);
-		final boolean isMP4;
-		if (new String(head, 4, 4).equals("ftyp")) isMP4 = true;
-			// This code is pulled directly from MP3-SPI.
-		else if ((head[0] == 'R') && (head[1] == 'I') && (head[2] == 'F') && (head[3] == 'F') && (head[8] == 'W') && (head[9] == 'A') && (head[10] == 'V') && (head[11] == 'E'))
-		{
-			isMP4 = false;	//RIFF/WAV stream found
-		}
-		else if ((head[0] == '.') && (head[1] == 's') && (head[2] == 'n') && (head[3] == 'd'))
-		{
-			isMP4 = false;	//AU stream found
-		}
-		else if ((head[0] == 'F') && (head[1] == 'O') && (head[2] == 'R') && (head[3] == 'M') && (head[8] == 'A') && (head[9] == 'I') && (head[10] == 'F') && (head[11] == 'F'))
-		{
-			isMP4 = false;	//AIFF stream found
-		}
-		else if (((head[0] == 'M') | (head[0] == 'm')) && ((head[1] == 'A') | (head[1] == 'a')) && ((head[2] == 'C') | (head[2] == 'c')))
-		{
-			isMP4 = false;	//APE stream found
-		}
-		else if (((head[0] == 'F') | (head[0] == 'f')) && ((head[1] == 'L') | (head[1] == 'l')) && ((head[2] == 'A') | (head[2] == 'a')) && ((head[3] == 'C') | (head[3] == 'c')))
-		{
-			isMP4 = false;	//FLAC stream found
-		}
-		else if (((head[0] == 'I') | (head[0] == 'i')) && ((head[1] == 'C') | (head[1] == 'c')) && ((head[2] == 'Y') | (head[2] == 'y')))
-		{
-			isMP4 = false;	//Shoutcast / ICE stream ?
-		}
-		else if (((head[0] == 'O') | (head[0] == 'o')) && ((head[1] == 'G') | (head[1] == 'g')) && ((head[2] == 'G') | (head[2] == 'g')))
-		{
-			isMP4 = false;	//Ogg stream ?
-		}
-		else
-			isMP4 = false;
-		return isMP4;
+		return (new String(head, 4, 4).equals("ftyp"));
 	}
 
 	private AudioFileFormat getAudioFileFormatAndClose(InputStream in) throws UnsupportedAudioFileException, IOException {

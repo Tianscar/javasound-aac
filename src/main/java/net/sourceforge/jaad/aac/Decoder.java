@@ -4,6 +4,7 @@ import net.sourceforge.jaad.aac.syntax.BitStream;
 import net.sourceforge.jaad.aac.syntax.PCE;
 import net.sourceforge.jaad.aac.syntax.SyntacticElements;
 import net.sourceforge.jaad.aac.transport.ADIFHeader;
+import net.sourceforge.jaad.mp4.MP4Exception;
 import net.sourceforge.jaad.util.Utils;
 
 import javax.sound.sampled.AudioFormat;
@@ -37,23 +38,23 @@ public class Decoder {
 		return profile.isDecodingSupported();
 	}
 
-	public static Decoder create(byte[] data) {
+	public static Decoder create(byte[] data) throws MP4Exception {
 		return create(BitStream.open(data));
 	}
 
-	public static Decoder create(BitStream in) {
+	public static Decoder create(BitStream in) throws MP4Exception {
 		DecoderConfig config = new DecoderConfig().decode(in);
 		return create(config);
 	}
 
-	public static Decoder create(AudioDecoderInfo info) {
+	public static Decoder create(AudioDecoderInfo info) throws MP4Exception {
 		DecoderConfig config = DecoderConfig.create(info);
 		return create(config);
 	}
 
-	public static Decoder create(DecoderConfig config) {
-		if(config==null)
-			throw new IllegalArgumentException("illegal MP4 decoder specific info");
+	public static Decoder create(DecoderConfig config) throws MP4Exception {
+		if (config == null || config.getSampleFrequency() == null)
+			throw new MP4Exception("illegal MP4 decoder specific info");
 		return new Decoder(config);
 	}
 

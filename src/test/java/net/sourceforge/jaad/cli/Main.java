@@ -1,5 +1,6 @@
-package net.sourceforge.jaad;
+package net.sourceforge.jaad.cli;
 
+import net.sourceforge.jaad.SampleBuffer;
 import net.sourceforge.jaad.aac.Decoder;
 import net.sourceforge.jaad.adts.ADTSDemultiplexer;
 import net.sourceforge.jaad.mp4.MP4Container;
@@ -22,7 +23,7 @@ import java.util.List;
  */
 public class Main {
 
-	private static final String USAGE = "usage:\nnet.sourceforge.jaad.Main [-mp4] <infile> <outfile>\n\n\t-mp4\tinput file is in MP4 container format";
+	private static final String USAGE = "usage:\nnet.sourceforge.jaad.cli.Main [-mp4] <infile> <outfile>\n\n\t-mp4\tinput file is in MP4 container format";
 
 	public static void main(String[] args) {
 		try {

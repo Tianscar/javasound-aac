@@ -1,5 +1,6 @@
-package net.sourceforge.jaad;
+package net.sourceforge.jaad.cli;
 
+import net.sourceforge.jaad.SampleBuffer;
 import net.sourceforge.jaad.aac.AACException;
 import net.sourceforge.jaad.aac.Decoder;
 import net.sourceforge.jaad.aac.DecoderConfig;
@@ -32,7 +33,7 @@ public class Play {
 
 	static final Logger LOGGER = Logger.getLogger("Play"); //for debugging
 
-	private static final String USAGE = "usage:\nnet.sourceforge.jaad.Play [-mp4] <infile>\n\n\t-mp4\tinput file is in MP4 container format";
+	private static final String USAGE = "usage:\nnet.sourceforge.jaad.cli.Play [-mp4] <infile>\n\n\t-mp4\tinput file is in MP4 container format";
 
 	public static void main(String[] args) {
 		try {
