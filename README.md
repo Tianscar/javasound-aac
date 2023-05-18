@@ -28,4 +28,8 @@ Note you need to download test audios [here](https://github.com/Tianscar/fbodemo
 
 ## License
 [Public Domain](/LICENSE)  
-[audios for test](/src/test/resources) originally created by [ProHonor](https://github.com/Aislandz), authorized [me](https://github.com/Tianscar) to use. 2023 (c) ProHonor, all rights reserved.
+
+### Dependencies
+| Library                                                                    | License | Comptime | Runtime |
+|----------------------------------------------------------------------------|---------|----------|---------|
+| [JavaSound ResLoader SPI](https://github.com/Tianscar/javasound-resloader) | MIT     | Yes      | No      |
