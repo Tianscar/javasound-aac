@@ -32,4 +32,4 @@ Note you need to download test audios [here](https://github.com/Tianscar/fbodemo
 ### Dependencies
 | Library                                                                    | License | Comptime | Runtime |
 |----------------------------------------------------------------------------|---------|----------|---------|
-| [JavaSound ResLoader SPI](https://github.com/Tianscar/javasound-resloader) | MIT     | Yes      | No      |
+| [JavaSound ResLoader SPI](https://github.com/Tianscar/javasound-resloader) | MIT     | Yes      | Yes     |
