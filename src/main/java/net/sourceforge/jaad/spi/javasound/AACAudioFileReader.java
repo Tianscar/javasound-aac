@@ -23,6 +23,8 @@ import java.util.List;
 
 import static java.nio.file.StandardOpenOption.READ;
 import static javax.sound.sampled.AudioSystem.NOT_SPECIFIED;
+import static net.sourceforge.jaad.spi.javasound.AACAudioFileFormat.Type.AAC;
+import static net.sourceforge.jaad.spi.javasound.AACAudioFileFormat.Type.MP4_AAC;
 
 public class AACAudioFileReader extends AudioFileReader implements AudioResourceReader {
 
@@ -76,23 +78,27 @@ public class AACAudioFileReader extends AudioFileReader implements AudioResource
 	public AudioFileFormat getAudioFileFormat(InputStream in) throws UnsupportedAudioFileException, IOException {
 		if (in instanceof MP4InputStream && ((MP4InputStream) in).seekSupported()) {
 			((MP4InputStream) in).seek(0);
-			if (isMP4(in)) {
+			if (checkMagic(in) == MP4_AAC) {
 				((MP4InputStream) in).seek(0);
 				return decodeMP4AudioFileFormat((MP4InputStream) in);
 			}
 		}
 		in.mark(1000);
 		try {
-			if (isMP4(in)) {
-				in.reset();
-				return decodeMP4AudioFileFormat(MP4InputStream.open(in));
-			}
+			AudioFileFormat.Type type = checkMagic(in);
+			if (type == null) throw new UnsupportedAudioFileException();
 			else {
-				try {
-					return decodeAACAudioFileFormat(in);
+				if (type == MP4_AAC) {
+					in.reset();
+					return decodeMP4AudioFileFormat(MP4InputStream.open(in));
 				}
-				catch (IOException e) {
-					throw new UnsupportedAudioFileException();
+				else {
+					try {
+						return decodeAACAudioFileFormat(in);
+					}
+					catch (IOException e) {
+						throw new UnsupportedAudioFileException();
+					}
 				}
 			}
 		}
@@ -102,10 +108,47 @@ public class AACAudioFileReader extends AudioFileReader implements AudioResource
 		}
 	}
 
-	private static boolean isMP4(InputStream in) throws IOException {
+	private static AudioFileFormat.Type checkMagic(InputStream in) throws IOException {
 		final byte[] head = new byte[12];
 		net.sourceforge.jaad.util.Utils.readNBytes(in, head);
-		return (new String(head, 4, 4).equals("ftyp"));
+		if ((head[4] == 'f') && (head[5] == 't') && (head[6] == 'y') && (head[7] == 'p'))
+		{
+			return MP4_AAC;	//MP4 stream found
+		}
+		// This code is pulled directly from MP3-SPI.
+		else if ((head[0] == 'R') && (head[1] == 'I') && (head[2] == 'F') && (head[3] == 'F') && (head[8] == 'W') && (head[9] == 'A') && (head[10] == 'V') && (head[11] == 'E'))
+		{
+			return null;	//RIFF/WAV stream found
+		}
+		else if ((head[0] == '.') && (head[1] == 's') && (head[2] == 'n') && (head[3] == 'd'))
+		{
+			return null;	//AU stream found
+		}
+		else if ((head[0] == 'F') && (head[1] == 'O') && (head[2] == 'R') && (head[3] == 'M') && (head[8] == 'A') && (head[9] == 'I') && (head[10] == 'F') && (head[11] == 'F'))
+		{
+			return null;	//AIFF stream found
+		}
+		else if (((head[0] == 'M') | (head[0] == 'm')) && ((head[1] == 'A') | (head[1] == 'a')) && ((head[2] == 'C') | (head[2] == 'c')))
+		{
+			return null;	//APE stream found
+		}
+		else if (((head[0] == 'F') | (head[0] == 'f')) && ((head[1] == 'L') | (head[1] == 'l')) && ((head[2] == 'A') | (head[2] == 'a')) && ((head[3] == 'C') | (head[3] == 'c')))
+		{
+			return null;	//FLAC stream found
+		}
+		else if ((head[0] == 'w') && (head[1] == 'v') && (head[2] == 'p') && (head[3] == 'k'))
+		{
+			return null;	//FLAC stream found
+		}
+		else if (((head[0] == 'I') | (head[0] == 'i')) && ((head[1] == 'C') | (head[1] == 'c')) && ((head[2] == 'Y') | (head[2] == 'y')))
+		{
+			return null;	//Shoutcast / ICE stream ?
+		}
+		else if (((head[0] == 'O') | (head[0] == 'o')) && ((head[1] == 'G') | (head[1] == 'g')) && ((head[2] == 'G') | (head[2] == 'g')))
+		{
+			return null;	//Ogg stream ?
+		}
+		else return AAC;
 	}
 
 	private AudioFileFormat getAudioFileFormatAndClose(InputStream in) throws UnsupportedAudioFileException, IOException {
@@ -138,16 +181,20 @@ public class AACAudioFileReader extends AudioFileReader implements AudioResource
 			}
 			in.mark(1000);
 			try {
-				if (isMP4(in)) {
-					in.reset();
-					return decodeMP4AudioInputStream(MP4InputStream.open(in));
-				}
+				AudioFileFormat.Type type = checkMagic(in);
+				if (type == null) throw new UnsupportedAudioFileException();
 				else {
-					try {
-						return decodeAACAudioInputStream(in);
+					if (type == MP4_AAC) {
+						in.reset();
+						return decodeMP4AudioInputStream(MP4InputStream.open(in));
 					}
-					catch (IOException e) {
-						throw new UnsupportedAudioFileException();
+					else {
+						try {
+							return decodeAACAudioInputStream(in);
+						}
+						catch (IOException e) {
+							throw new UnsupportedAudioFileException();
+						}
 					}
 				}
 			}
@@ -180,16 +227,20 @@ public class AACAudioFileReader extends AudioFileReader implements AudioResource
 	public AudioInputStream getAudioInputStream(File file) throws UnsupportedAudioFileException, IOException {
 		try {
 			InputStream in = Files.newInputStream(file.toPath(), READ);
-			if (isMP4(in)) {
-				in.close();
-				return decodeMP4AudioInputStream(MP4InputStream.open(new RandomAccessFile(file, "r")));
-			}
+			AudioFileFormat.Type type = checkMagic(in);
+			if (type == null) throw new UnsupportedAudioFileException();
 			else {
-				try {
-					return decodeAACAudioInputStream(in);
+				if (type == MP4_AAC) {
+					in.close();
+					return decodeMP4AudioInputStream(MP4InputStream.open(new RandomAccessFile(file, "r")));
 				}
-				catch (IOException e) {
-					throw new UnsupportedAudioFileException();
+				else {
+					try {
+						return decodeAACAudioInputStream(in);
+					}
+					catch (IOException e) {
+						throw new UnsupportedAudioFileException();
+					}
 				}
 			}
 		}
@@ -213,16 +264,20 @@ public class AACAudioFileReader extends AudioFileReader implements AudioResource
 		try {
 			InputStream in = resourceLoader.getResourceAsStream(name);
 			if (in == null) throw new IOException("Cannot load resource \"" + name + "\" with ClassLoader \"" + resourceLoader + "\"");
-			else if (isMP4(in)) {
-				in.close();
-				return decodeMP4AudioInputStream(MP4InputStream.open(resourceLoader, name));
-			}
+			AudioFileFormat.Type type = checkMagic(in);
+			if (type == null) throw new UnsupportedAudioFileException();
 			else {
-				try {
-					return decodeAACAudioInputStream(in);
+				if (type == MP4_AAC) {
+					in.close();
+					return decodeMP4AudioInputStream(MP4InputStream.open(resourceLoader, name));
 				}
-				catch (IOException e) {
-					throw new UnsupportedAudioFileException();
+				else {
+					try {
+						return decodeAACAudioInputStream(in);
+					}
+					catch (IOException e) {
+						throw new UnsupportedAudioFileException();
+					}
 				}
 			}
 		}
