@@ -1,3 +1,5 @@
+WARNING: THIS PROJECT IS NO LONGER MAINTAINED. MOVED TO: https://github.com/jseproject/jse-spi
+
 # Java Advanced Audio Decoder
 This is a fork of [DV8FromTheWorld/JAADec](https://github.com/DV8FromTheWorld/JAADec/), containing bug fixes mainly from [these forks](https://github.com/DV8FromTheWorld/JAADec/forks).
 
